@@ -119,7 +119,11 @@ export async function searchTracks(query, token) {
     throw err
   }
 
-  if (!res.ok) throw new Error('Spotify search failed')
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    const msg = body.error || `Spotify search failed (HTTP ${res.status})`
+    throw new Error(msg)
+  }
   const { results } = await res.json()
   return results
 }

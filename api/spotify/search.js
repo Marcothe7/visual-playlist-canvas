@@ -41,7 +41,12 @@ export default async function handler(req, res) {
     }
 
     if (!spotifyRes.ok) {
-      return res.status(spotifyRes.status).json({ error: 'Spotify search failed' })
+      const errBody = await spotifyRes.json().catch(() => ({}))
+      return res.status(spotifyRes.status).json({
+        error: errBody.error?.message || errBody.error_description || 'Spotify search failed',
+        status: spotifyRes.status,
+        spotify_error: errBody,
+      })
     }
 
     const data    = await spotifyRes.json()
