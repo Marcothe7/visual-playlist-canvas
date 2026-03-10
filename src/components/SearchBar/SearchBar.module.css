@@ -1,0 +1,66 @@
+.wrapper {
+  flex: 1;
+  max-width: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  left: 12px;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-faint);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  padding: 8px 36px 8px 36px;
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+
+.clearBtn {
+  position: absolute;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  color: var(--color-text-faint);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.clearBtn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.clearBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    max-width: 140px;
+  }
+}

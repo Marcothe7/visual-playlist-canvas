@@ -1,0 +1,421 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: var(--z-overlay);
+  padding: var(--space-md);
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  width: min(480px, 100%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.modalWide {
+  width: min(560px, 100%);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-lg) 0;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.modeToggle {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  font-weight: 500;
+  padding: 4px 10px;
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.modeToggle:hover {
+  background: rgba(29, 185, 84, 0.1);
+  border-color: var(--color-accent);
+}
+
+.modalTitle {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.closeBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+
+.closeBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Form */
+.form {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.twoCol .field:last-child {
+  max-width: 100px;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.required {
+  color: var(--color-accent);
+  margin-left: 2px;
+}
+
+.input {
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+  outline: none;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+}
+
+.input.error {
+  border-color: var(--color-error);
+}
+
+.errorMsg {
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  margin-top: 2px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+  padding: 0 var(--space-lg) var(--space-lg);
+}
+
+.cancelBtn {
+  padding: 10px var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.cancelBtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-2);
+}
+
+.submitBtn {
+  padding: 10px var(--space-lg);
+  background: var(--color-accent);
+  color: #000;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+
+.submitBtn:hover {
+  background: var(--color-accent-hover);
+}
+
+/* ── Spotify search ─────────────────────────────────────────────────────────── */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-md) var(--space-lg) 0;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  transition: border-color var(--transition-fast);
+}
+
+.searchBar:focus-within {
+  border-color: var(--color-accent);
+}
+
+.searchIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-faint);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.searchSpinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.resultsList {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: var(--space-sm) var(--space-lg) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.searchHint,
+.noResults,
+.searchError {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+.searchError { color: var(--color-error); }
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+  cursor: default;
+}
+
+.resultItem:hover {
+  background: var(--color-surface-2);
+}
+
+.resultArt {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-surface-3);
+}
+
+.resultArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.resultGradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--from), var(--to));
+}
+
+.resultInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resultTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultArtist {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.addBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.addBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(29, 185, 84, 0.1);
+}
+
+.addBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.addBtnDone {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #000;
+  cursor: default;
+}
+
+.addBtnDone:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #000;
+}
+
+/* ── Spotify connect prompt ─────────────────────────────────────────────────── */
+.connectWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-2xl) var(--space-lg);
+  gap: var(--space-md);
+  text-align: center;
+}
+
+.connectIcon {
+  width: 52px;
+  height: 52px;
+  background: #1db954;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  color: #000;
+}
+
+.connectIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.connectTitle {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.connectSub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+.connectBtn {
+  margin-top: var(--space-sm);
+  padding: 11px var(--space-xl);
+  background: #1db954;
+  color: #000;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.01em;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.connectBtn:hover {
+  background: #1ed760;
+  transform: scale(1.02);
+}
+
+.connectPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+}
+
+.connectMsg {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  max-width: 300px;
+  line-height: 1.5;
+}

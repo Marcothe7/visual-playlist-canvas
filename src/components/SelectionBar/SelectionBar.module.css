@@ -1,0 +1,131 @@
+.bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-bar);
+  background: var(--color-surface-2);
+  border-top: 1px solid var(--color-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  gap: var(--space-md);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.count {
+  background: var(--color-accent);
+  color: #000;
+  font-weight: 700;
+  font-size: var(--text-xs);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+}
+
+.clearBtn {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.clearBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+
+.deleteBtn {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: #ff5555;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid rgba(255, 85, 85, 0.35);
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.deleteBtn:hover:not(:disabled) {
+  color: #fff;
+  background: rgba(220, 50, 50, 0.8);
+  border-color: transparent;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.recBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px var(--space-lg);
+  background: var(--color-accent);
+  color: #000;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.recBtn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.recBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .bar {
+    padding: var(--space-sm) var(--space-md);
+  }
+  .badge span:not(.count) {
+    display: none;
+  }
+  .recBtn span {
+    display: none;
+  }
+}
