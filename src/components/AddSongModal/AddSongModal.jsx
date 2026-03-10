@@ -35,7 +35,7 @@ function SpotifySearch({ onAdd }) {
       if (err.code === 'TOKEN_EXPIRED' || err.code === 'NO_TOKEN') {
         setError('connect-spotify')
       } else {
-        setError('Search failed — please try again.')
+        setError(err.message || 'Search failed — please try again.')
       }
     } finally {
       setLoading(false)
