@@ -15,6 +15,20 @@ function spotifyTrackToSong(track) {
   }
 }
 
+async function getClientCredentialsToken(clientId, clientSecret) {
+  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+    },
+    body: new URLSearchParams({ grant_type: 'client_credentials' }).toString(),
+  })
+  if (!tokenRes.ok) throw new Error('Failed to get Spotify app token')
+  const data = await tokenRes.json()
+  return data.access_token
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -25,27 +39,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'q query parameter is required' })
   }
 
-  const authHeader = req.headers.authorization
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided', code: 'NO_TOKEN' })
+  const clientId     = process.env.SPOTIFY_CLIENT_ID
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+  if (!clientId || !clientSecret) {
+    return res.status(500).json({ error: 'Spotify credentials not configured' })
   }
 
   try {
+    const appToken  = await getClientCredentialsToken(clientId, clientSecret)
     const spotifyRes = await fetch(
       `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=12`,
-      { headers: { Authorization: authHeader } }
+      { headers: { Authorization: `Bearer ${appToken}` } }
     )
-
-    if (spotifyRes.status === 401) {
-      return res.status(401).json({ error: 'Spotify token expired', code: 'TOKEN_EXPIRED' })
-    }
 
     if (!spotifyRes.ok) {
       const errBody = await spotifyRes.json().catch(() => ({}))
       return res.status(spotifyRes.status).json({
-        error: errBody.error?.message || errBody.error_description || 'Spotify search failed',
+        error: errBody.error?.message || 'Spotify search failed',
         status: spotifyRes.status,
-        spotify_error: errBody,
       })
     }
 

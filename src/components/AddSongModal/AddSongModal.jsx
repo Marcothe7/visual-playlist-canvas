@@ -1,15 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSongs } from '@/hooks/useSongs'
-import { useAppState } from '@/context/AppContext'
 import { generateId } from '@/utils/generateId'
 import { getGradientFromString } from '@/utils/colorFromString'
-import { searchTracks, getValidToken, initiateSpotifyAuth } from '@/services/spotifyService'
+import { searchTracks } from '@/services/spotifyService'
 import styles from './AddSongModal.module.css'
 
-// ─── Music search panel (Spotify API — requires Connect Spotify) ──────────────
+// ─── Music search panel ───────────────────────────────────────────────────────
 function SpotifySearch({ onAdd }) {
-  const { spotifyToken } = useAppState()
   const [query,   setQuery]   = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -24,19 +22,9 @@ function SpotifySearch({ onAdd }) {
     if (!q.trim()) { setResults([]); return }
     setLoading(true); setError(null)
     try {
-      const token = await getValidToken()
-      if (!token) {
-        setError('connect-spotify')
-        setLoading(false)
-        return
-      }
-      setResults(await searchTracks(q, token))
+      setResults(await searchTracks(q))
     } catch (err) {
-      if (err.code === 'TOKEN_EXPIRED' || err.code === 'NO_TOKEN') {
-        setError('connect-spotify')
-      } else {
-        setError(err.message || 'Search failed — please try again.')
-      }
+      setError(err.message || 'Search failed — please try again.')
     } finally {
       setLoading(false)
     }
@@ -73,22 +61,12 @@ function SpotifySearch({ onAdd }) {
       </div>
 
       <div className={styles.resultsList}>
-        {error === 'connect-spotify' && (
-          <div className={styles.connectPrompt}>
-            <p className={styles.connectMsg}>Connect Spotify to search millions of tracks</p>
-            <button className={styles.connectBtn} onClick={initiateSpotifyAuth}>
-              Connect Spotify
-            </button>
-          </div>
-        )}
-        {error && error !== 'connect-spotify' && <p className={styles.searchError}>{error}</p>}
+        {error && <p className={styles.searchError}>{error}</p>}
         {!error && !loading && query.trim() && results.length === 0 && (
           <p className={styles.noResults}>No results for "{query}"</p>
         )}
         {!query.trim() && !loading && !error && (
-          <p className={styles.searchHint}>
-            {spotifyToken ? 'Type to search millions of Spotify tracks' : 'Connect Spotify in the header to enable search'}
-          </p>
+          <p className={styles.searchHint}>Type to search millions of Spotify tracks</p>
         )}
         {results.map(track => {
           const isAdded = added.has(track.id)

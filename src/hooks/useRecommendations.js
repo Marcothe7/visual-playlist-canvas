@@ -12,11 +12,10 @@ export function useRecommendations() {
     try {
       const recs = await getRecommendations(selectedSongs)
       // Enrich each recommendation with real album art + previewUrl from Spotify
-      const token = state.spotifyToken?.access_token ?? null
       const enriched = await Promise.all(
         recs.map(async rec => {
           try {
-            const results = await searchTracks(`${rec.title} ${rec.artist}`, token)
+            const results = await searchTracks(`${rec.title} ${rec.artist}`)
             const match = results[0]
             return {
               ...rec,

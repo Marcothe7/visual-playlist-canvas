@@ -99,25 +99,10 @@ export async function fetchInitialSongs() {
   return songs
 }
 
-export async function searchTracks(query, token) {
+export async function searchTracks(query) {
   if (!query?.trim()) return []
 
-  if (!token) {
-    const err = new Error('Spotify not connected')
-    err.code = 'NO_TOKEN'
-    throw err
-  }
-
-  const res = await fetch(
-    `/api/spotify/search?q=${encodeURIComponent(query)}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-
-  if (res.status === 401) {
-    const err = new Error('Spotify token expired')
-    err.code = 'TOKEN_EXPIRED'
-    throw err
-  }
+  const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`)
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
