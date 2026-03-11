@@ -41,6 +41,9 @@
 
 /* Mobile (<640px): 2 columns, tighter */
 @media (max-width: 639px) {
+  .selectionBanner {
+    margin: var(--space-sm) var(--space-sm) calc(-1 * var(--space-xs));
+  }
   .grid {
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 150px;

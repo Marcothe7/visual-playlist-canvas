@@ -27,7 +27,9 @@ export function Header({ onAddSong, density, onDensityChange, spotifyConnected, 
         <p className={styles.subtitle}>Curate · Discover · Play</p>
       </div>
 
-      <PlaylistSwitcher />
+      <div className={styles.playlistSwitcherWrap}>
+        <PlaylistSwitcher />
+      </div>
 
       <SearchBar />
 

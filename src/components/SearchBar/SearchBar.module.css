@@ -1,6 +1,7 @@
 .wrapper {
   flex: 1;
   max-width: 280px;
+  min-width: 0;
   position: relative;
   display: flex;
   align-items: center;

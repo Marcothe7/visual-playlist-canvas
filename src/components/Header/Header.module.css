@@ -205,6 +205,12 @@
   color: var(--color-accent);
 }
 
+/* Transparent wrapper — only used as a hook for mobile hiding */
+.playlistSwitcherWrap {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
 @media (max-width: 899px) {
   .densityToggle {
     display: none;
@@ -226,6 +232,10 @@
     display: none;
   }
   .spotifyBtn {
+    display: none;
+  }
+  /* Hide playlist switcher — BottomNav handles library switching on mobile */
+  .playlistSwitcherWrap {
     display: none;
   }
 }
