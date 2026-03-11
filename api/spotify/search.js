@@ -29,6 +29,18 @@ async function getClientCredentialsToken(clientId, clientSecret) {
   return data.access_token
 }
 
+async function getDeezerPreview(title, artist) {
+  try {
+    const q   = encodeURIComponent(`${title} ${artist}`)
+    const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.data?.[0]?.preview ?? null
+  } catch {
+    return null
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -64,6 +76,16 @@ export default async function handler(req, res) {
     const results = (data.tracks?.items ?? [])
       .map(spotifyTrackToSong)
       .filter(Boolean)
+
+    // For tracks missing Spotify preview_url (deprecated for most markets),
+    // fall back to Deezer which still provides 30s previews for free.
+    await Promise.all(
+      results.map(async (song) => {
+        if (!song.previewUrl) {
+          song.previewUrl = await getDeezerPreview(song.title, song.artist)
+        }
+      })
+    )
 
     return res.status(200).json({ results })
   } catch (err) {

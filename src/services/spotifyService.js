@@ -69,6 +69,8 @@ export function initiateSpotifyAuth() {
     console.error('VITE_SPOTIFY_CLIENT_ID or VITE_APP_URL not set')
     return
   }
+  // Tell the Supabase client not to intercept the ?code= on the return trip
+  sessionStorage.setItem('spotify-oauth-pending', '1')
   const params = new URLSearchParams({
     client_id:     clientId,
     response_type: 'code',

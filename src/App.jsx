@@ -82,6 +82,7 @@ export default function App() {
     const code = params.get('code')
     if (!code) return
     window.history.replaceState({}, '', window.location.pathname)
+    sessionStorage.removeItem('spotify-oauth-pending')
     handleAuthCallback(code)
       .then(tokenData => dispatch({ type: 'SPOTIFY_TOKEN_SET', payload: tokenData }))
       .catch(err => console.error('Spotify auth failed:', err))
