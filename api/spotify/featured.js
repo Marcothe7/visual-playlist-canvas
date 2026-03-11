@@ -1,4 +1,10 @@
-const TOP_HITS_PLAYLIST_ID = '37i9dQZEVXbMDoHDwVN2tF' // Spotify Global Top 50
+// Curated search queries rotated to give varied initial songs.
+// These use the /search endpoint which works fine with client credentials.
+const SEED_QUERIES = [
+  'top hits 2024',
+  'popular songs 2024',
+  'best songs ever',
+]
 
 function spotifyTrackToSong(track) {
   if (!track || !track.id) return null
@@ -45,18 +51,20 @@ export default async function handler(req, res) {
   try {
     const token = await getClientCredentialsToken(clientId, clientSecret)
 
-    const tracksRes = await fetch(
-      `https://api.spotify.com/v1/playlists/${TOP_HITS_PLAYLIST_ID}/tracks?limit=50&fields=items(track(id,name,artists,album,preview_url))`,
+    // Use search instead of playlist endpoint (playlists require user auth since 2024)
+    const query = SEED_QUERIES[Math.floor(Math.random() * SEED_QUERIES.length)]
+    const searchRes = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=50&market=US`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
 
-    if (!tracksRes.ok) {
-      return res.status(tracksRes.status).json({ error: 'Failed to fetch playlist tracks' })
+    if (!searchRes.ok) {
+      return res.status(searchRes.status).json({ error: 'Failed to fetch featured tracks' })
     }
 
-    const data  = await tracksRes.json()
-    const songs = (data.items ?? [])
-      .map(item => spotifyTrackToSong(item?.track))
+    const data  = await searchRes.json()
+    const songs = (data.tracks?.items ?? [])
+      .map(spotifyTrackToSong)
       .filter(Boolean)
 
     res.setHeader('Cache-Control', 'public, max-age=3600')

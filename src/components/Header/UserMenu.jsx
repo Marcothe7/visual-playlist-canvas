@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
+import { usePlaylists } from '@/context/PlaylistContext'
 import { getGradientFromString } from '@/utils/colorFromString'
 import styles from './UserMenu.module.css'
 
 export function UserMenu() {
   const { user, signOut } = useAuth()
+  const { flushPendingSync } = usePlaylists()
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
 
@@ -60,7 +62,7 @@ export function UserMenu() {
             <div className={styles.dropdownDivider} />
             <button
               className={styles.dropdownItem}
-              onClick={() => { signOut(); setOpen(false) }}
+              onClick={async () => { setOpen(false); await flushPendingSync(); await signOut() }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

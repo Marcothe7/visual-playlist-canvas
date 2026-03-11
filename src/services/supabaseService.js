@@ -1,7 +1,5 @@
 import { supabase } from '@/lib/supabase'
 
-const MIGRATION_PREFIX = 'vpc-migrated-'
-
 function isOnline() {
   return typeof navigator !== 'undefined' ? navigator.onLine : true
 }
@@ -115,57 +113,32 @@ export async function upsertPreferences(userId, prefs) {
   if (error) throw error
 }
 
-// ─── localStorage Migration ───────────────────────────────────────────────────
-export async function migrateLocalStorage(userId) {
-  const migrationKey = MIGRATION_PREFIX + userId
-  if (localStorage.getItem(migrationKey)) return // already done
-
-  const raw = localStorage.getItem('vpc-playlists')
-  if (!raw) {
-    localStorage.setItem(migrationKey, '1')
-    return
-  }
-
-  try {
-    const localPlaylists = JSON.parse(raw)
-    for (const localPl of localPlaylists) {
-      const dbPl = await createPlaylist(userId, localPl.name || 'My Library')
-      if (localPl.songs?.length > 0) {
-        await upsertSongs(dbPl.id, userId, localPl.songs)
-      }
-    }
-    // Also migrate grid density preference
-    const density = localStorage.getItem('vpc-grid-density')
-    if (density) {
-      await upsertPreferences(userId, { grid_density: density })
-    }
-  } catch (err) {
-    console.warn('Migration partially failed:', err)
-  }
-
-  localStorage.setItem(migrationKey, '1')
-}
-
 // ─── Shape converters ─────────────────────────────────────────────────────────
 function appSongToDb(song, playlistId, userId, position) {
   return {
-    id:          song.id,
+    // Always use a fresh UUID for the DB row so Spotify IDs (non-UUID strings)
+    // don't cause a type-cast failure on UUID-typed id columns.
+    id:          crypto.randomUUID(),
     playlist_id: playlistId,
     user_id:     userId,
     position,
     title:       song.title,
     artist:      song.artist,
-    album:       song.album   || null,
+    album:       song.album    || null,
     album_art:   song.albumArt || null,
     preview_url: song.previewUrl || null,
-    year:        song.year    || null,
-    spotify_id:  song.spotifyId || null,
+    year:        song.year     || null,
+    // Store the original song id in spotify_id so we can round-trip it back.
+    // For Spotify tracks this is the Spotify track ID; for manual songs it's
+    // the locally-generated UUID from generateId().
+    spotify_id:  song.id || null,
   }
 }
 
 function dbSongToApp(row) {
   return {
-    id:         row.id,
+    // Restore the original app-side song id from spotify_id (stored above).
+    id:         row.spotify_id || row.id,
     title:      row.title,
     artist:     row.artist,
     album:      row.album      || '',

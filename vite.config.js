@@ -13,4 +13,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  server: {
+    allowedHosts: 'all', // lets vercel dev's internal proxy reach the Vite dev server
+  },
 })

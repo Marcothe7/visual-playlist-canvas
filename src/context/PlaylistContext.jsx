@@ -7,7 +7,6 @@ import {
   deletePlaylist as dbDeletePlaylist,
   renamePlaylist as dbRenamePlaylist,
   upsertSongs,
-  migrateLocalStorage,
 } from '@/services/supabaseService'
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
@@ -18,6 +17,11 @@ const LEGACY_SONGS_KEY = 'vpc-songs'
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function makePlaylist(name, songs = []) {
   return { id: generateId(), name, songs }
+}
+
+function createFreshState() {
+  const first = makePlaylist('My Library')
+  return { playlists: [first], activeId: first.id, isHydrating: false }
 }
 
 function loadInitialState() {
@@ -129,12 +133,16 @@ export function PlaylistProvider({ children }) {
       })
       const result = supabase.auth.onAuthStateChange((_event, session) => {
         const prevUserId = userRef.current?.id
+        if (!session && prevUserId) {
+          // Session is already cleared at this point — just reset state.
+          // Callers must flush pending sync BEFORE calling supabase.auth.signOut().
+          userRef.current = null
+          dispatch({ type: 'HYDRATE_FROM_DB', payload: createFreshState() })
+          return
+        }
         userRef.current = session?.user ?? null
         if (session?.user && session.user.id !== prevUserId) {
           hydrateFromSupabase(session.user)
-        } else if (!session) {
-          // Signed out: revert to localStorage
-          dispatch({ type: 'HYDRATE_FROM_DB', payload: loadInitialState() })
         }
       })
       sub = result.data.subscription
@@ -145,18 +153,15 @@ export function PlaylistProvider({ children }) {
   async function hydrateFromSupabase(user) {
     dispatch({ type: 'SET_HYDRATING', payload: true })
     try {
-      // Run one-time migration of localStorage data
-      await migrateLocalStorage(user.id)
-
       const dbPlaylists = await fetchPlaylists(user.id)
       if (dbPlaylists.length === 0) {
-        // New user with no data — create default playlist
+        // New user — create default empty playlist in Supabase
         const dbPl = await dbCreatePlaylist(user.id, 'My Library')
         dispatch({ type: 'HYDRATE_FROM_DB', payload: { playlists: [{ id: dbPl.id, name: dbPl.name, songs: [] }], activeId: dbPl.id } })
         return
       }
 
-      // Fetch songs for each playlist
+      // Fetch songs for each playlist from Supabase only
       const playlists = await Promise.all(
         dbPlaylists.map(async (pl) => {
           const songs = await fetchPlaylistSongs(pl.id)
@@ -164,12 +169,9 @@ export function PlaylistProvider({ children }) {
         })
       )
 
-      const savedActiveId = localStorage.getItem(ACTIVE_KEY)
-      const activeId = playlists.find(p => p.id === savedActiveId) ? savedActiveId : playlists[0].id
-
-      dispatch({ type: 'HYDRATE_FROM_DB', payload: { playlists, activeId } })
+      dispatch({ type: 'HYDRATE_FROM_DB', payload: { playlists, activeId: playlists[0].id } })
     } catch (err) {
-      console.warn('Supabase hydration failed, using localStorage:', err)
+      console.warn('Supabase hydration failed:', err)
       dispatch({ type: 'SET_HYDRATING', payload: false })
     }
   }
@@ -183,19 +185,37 @@ export function PlaylistProvider({ children }) {
 
   // Background Supabase sync for SYNC_SONGS
   const syncTimeoutRef = useRef(null)
+  const pendingSyncRef = useRef(null) // { playlistId, userId, songs }
+
   function scheduleSyncToSupabase(playlistId, songs) {
-    if (!userRef.current) return
+    const userId = userRef.current?.id
+    if (!userId) return
+    // Capture userId now — not inside the timeout — so sign-out can't null it before it fires
+    pendingSyncRef.current = { playlistId, userId, songs }
     clearTimeout(syncTimeoutRef.current)
     syncTimeoutRef.current = setTimeout(() => {
-      upsertSongs(playlistId, userRef.current.id, songs).catch(err =>
-        console.warn('Supabase sync failed:', err)
+      const pending = pendingSyncRef.current
+      if (!pending) return
+      pendingSyncRef.current = null
+      upsertSongs(pending.playlistId, pending.userId, pending.songs).catch(err =>
+        console.error('Supabase sync failed:', err)
       )
-    }, 1000) // debounce 1s to batch rapid changes
+    }, 800)
+  }
+
+  async function flushPendingSync() {
+    clearTimeout(syncTimeoutRef.current)
+    const pending = pendingSyncRef.current
+    if (!pending) return
+    pendingSyncRef.current = null
+    await upsertSongs(pending.playlistId, pending.userId, pending.songs).catch(err =>
+      console.error('Supabase flush failed:', err)
+    )
   }
 
   return (
     <PlaylistStateCtx.Provider value={state}>
-      <PlaylistDispatchCtx.Provider value={{ dispatch, scheduleSyncToSupabase, getUserId: () => userRef.current?.id }}>
+      <PlaylistDispatchCtx.Provider value={{ dispatch, scheduleSyncToSupabase, flushPendingSync, getUserId: () => userRef.current?.id }}>
         {children}
       </PlaylistDispatchCtx.Provider>
     </PlaylistStateCtx.Provider>
@@ -217,7 +237,7 @@ export function usePlaylistDispatch() {
 
 export function usePlaylists() {
   const state    = usePlaylistState()
-  const { dispatch, scheduleSyncToSupabase, getUserId } = usePlaylistDispatch()
+  const { dispatch, scheduleSyncToSupabase, flushPendingSync, getUserId } = usePlaylistDispatch()
 
   const activePlaylist = state.playlists.find(p => p.id === state.activeId) ?? state.playlists[0]
 
@@ -261,14 +281,15 @@ export function usePlaylists() {
   }
 
   return {
-    playlists:    state.playlists,
-    activeId:     state.activeId,
+    playlists:       state.playlists,
+    activeId:        state.activeId,
     activePlaylist,
-    isHydrating:  state.isHydrating,
+    isHydrating:     state.isHydrating,
     createPlaylist,
     deletePlaylist,
     renamePlaylist,
     switchPlaylist,
     syncSongs,
+    flushPendingSync,
   }
 }
