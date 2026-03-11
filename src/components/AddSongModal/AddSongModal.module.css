@@ -419,3 +419,30 @@
   max-width: 300px;
   line-height: 1.5;
 }
+
+/* Drag handle pill (mobile) */
+.dragHandle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-surface-3);
+  border-radius: var(--radius-full);
+  margin: var(--space-sm) auto 0;
+}
+
+/* Mobile bottom sheet */
+@media (max-width: 639px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal,
+  .modalWide {
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 88dvh;
+    overflow-y: auto;
+  }
+  .resultsList {
+    max-height: none;
+  }
+}

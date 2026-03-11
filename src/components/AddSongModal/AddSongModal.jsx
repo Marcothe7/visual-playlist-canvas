@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSongs } from '@/hooks/useSongs'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { generateId } from '@/utils/generateId'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { searchTracks } from '@/services/spotifyService'
@@ -183,6 +184,7 @@ function ManualForm({ onAdd, onClose }) {
 // ─── Modal shell ──────────────────────────────────────────────────────────────
 export function AddSongModal({ isOpen, onClose }) {
   const { addSong } = useSongs()
+  const isMobile = useIsMobile()
   const [mode, setMode] = useState('search')
 
   useEffect(() => { if (isOpen) setMode('search') }, [isOpen])
@@ -196,6 +198,10 @@ export function AddSongModal({ isOpen, onClose }) {
   function handleAdd(song) { addSong({ ...song, isSelected: false }) }
   function handleOverlayClick(e) { if (e.target === e.currentTarget) onClose() }
 
+  const modalMotion = isMobile
+    ? { initial: { y: '100%' }, animate: { y: 0 }, exit: { y: '100%' } }
+    : { initial: { scale: 0.92, y: 20, opacity: 0 }, animate: { scale: 1, y: 0, opacity: 1 }, exit: { scale: 0.92, y: 20, opacity: 0 } }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -208,11 +214,12 @@ export function AddSongModal({ isOpen, onClose }) {
         >
           <motion.div
             className={`${styles.modal} ${mode === 'search' ? styles.modalWide : ''}`}
-            initial={{ scale: 0.92, y: 20, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.92, y: 20, opacity: 0 }}
+            {...modalMotion}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
           >
+            {/* Drag handle on mobile */}
+            {isMobile && <div className={styles.dragHandle} aria-hidden="true" />}
+
             <div className={styles.modalHeader}>
               <h2 id="modal-title" className={styles.modalTitle}>
                 {mode === 'search' ? 'Search Music' : 'Add a Song'}

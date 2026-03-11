@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '@/context/AppContext'
 import { usePlaylists } from '@/context/PlaylistContext'
 import { useAudio } from '@/context/AudioContext'
+import { useAuth } from '@/context/AuthContext'
 import { Header } from '@/components/Header/Header'
 import { SongGrid } from '@/components/SongGrid/SongGrid'
 import { SelectionBar } from '@/components/SelectionBar/SelectionBar'
@@ -10,9 +11,12 @@ import { AddSongModal } from '@/components/AddSongModal/AddSongModal'
 import { RecommendationReveal } from '@/components/RecommendationReveal/RecommendationReveal'
 import { NowPlayingBar } from '@/components/NowPlayingBar/NowPlayingBar'
 import { UndoToast } from '@/components/UndoToast/UndoToast'
+import { AuthModal } from '@/components/AuthModal/AuthModal'
+import { BottomNav } from '@/components/BottomNav/BottomNav'
 import { fetchInitialSongs, handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired } from '@/services/spotifyService'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { getGradientFromString } from '@/utils/colorFromString'
+import { fetchPreferences, upsertPreferences, fetchRecommendationHistory } from '@/services/supabaseService'
 import styles from './App.module.css'
 
 export default function App() {
@@ -20,17 +24,46 @@ export default function App() {
   const dispatch = useAppDispatch()
   const { activeId, activePlaylist, syncSongs } = usePlaylists()
   const { playingId } = useAudio()
+  const { user } = useAuth()
 
   const prevActiveIdRef = useRef(activeId)
 
-  // Grid density — persisted to localStorage
+  // Grid density — persisted to localStorage, synced with Supabase when authed
   const [density, setDensity] = useState(
     () => localStorage.getItem('vpc-grid-density') || 'normal'
   )
 
+  // Load preferences from Supabase when user signs in
+  useEffect(() => {
+    if (!user) return
+    fetchPreferences(user.id)
+      .then(prefs => {
+        if (prefs?.grid_density) {
+          setDensity(prefs.grid_density)
+          localStorage.setItem('vpc-grid-density', prefs.grid_density)
+        }
+      })
+      .catch(() => {}) // silently fall back to localStorage value
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Seed recommendation history from Supabase when user signs in
+  useEffect(() => {
+    if (!user) return
+    fetchRecommendationHistory(user.id, 5)
+      .then(historyRows => {
+        if (!historyRows?.length) return
+        const recSets = historyRows.map(r => r.recs)
+        dispatch({ type: 'SEED_RECOMMENDATION_HISTORY', payload: recSets })
+      })
+      .catch(() => {})
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   function handleDensityChange(d) {
     setDensity(d)
     localStorage.setItem('vpc-grid-density', d)
+    if (user) {
+      upsertPreferences(user.id, { grid_density: d }).catch(() => {})
+    }
   }
 
   useKeyboardShortcuts()
@@ -119,6 +152,8 @@ export default function App() {
       <UndoToast />
       <AddSongModal isOpen={isModalOpen} onClose={closeModal} />
       <RecommendationReveal />
+      <AuthModal />
+      <BottomNav onAddSong={openModal} />
     </div>
   )
 }

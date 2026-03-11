@@ -157,6 +157,19 @@ function appReducer(state, action) {
         recommendationsError:  null,
       }
 
+    case 'SEED_RECOMMENDATION_HISTORY': {
+      // Load historical recommendations from DB (only if history is currently empty)
+      if (state.recommendationHistory.length > 0) return state
+      const history = action.payload // array of rec arrays
+      if (!history?.length) return state
+      return {
+        ...state,
+        recommendationHistory: history,
+        historyIndex:          history.length - 1,
+        recommendations:       history[history.length - 1],
+      }
+    }
+
     case 'SONGS_LOADING':
       return { ...state, songsLoading: true }
 

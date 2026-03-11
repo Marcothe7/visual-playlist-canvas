@@ -3,10 +3,13 @@ import { PlaylistSwitcher } from '@/components/PlaylistSwitcher/PlaylistSwitcher
 import { SearchBar } from '@/components/SearchBar/SearchBar'
 import { ExportMenu } from '@/components/ExportMenu/ExportMenu'
 import { ShortcutsModal } from '@/components/ShortcutsModal/ShortcutsModal'
+import { UserMenu } from '@/components/Header/UserMenu'
+import { useAuth } from '@/context/AuthContext'
 import styles from './Header.module.css'
 
 export function Header({ onAddSong, density, onDensityChange, spotifyConnected, onSpotifyConnect }) {
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const { user, openAuthModal } = useAuth()
 
   return (
     <header className={styles.header}>
@@ -98,7 +101,19 @@ export function Header({ onAddSong, density, onDensityChange, spotifyConnected, 
 
         <ExportMenu />
 
-        <button className={styles.addButton} onClick={onAddSong} aria-label="Add a song">
+        {user ? (
+          <UserMenu />
+        ) : (
+          <button
+            className={styles.signInBtn}
+            onClick={() => openAuthModal('signin')}
+            aria-label="Sign in"
+          >
+            Sign in
+          </button>
+        )}
+
+        <button className={`${styles.addButton} ${styles.addButtonDesktop}`} onClick={onAddSong} aria-label="Add a song">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="16" />

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { AuthProvider } from '@/context/AuthContext'
 import { PlaylistProvider } from '@/context/PlaylistContext'
 import { AppProvider } from '@/context/AppContext'
 import { AudioProvider } from '@/context/AudioContext'
@@ -8,12 +9,14 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PlaylistProvider>
-      <AudioProvider>
-        <AppProvider>
-          <App />
-        </AppProvider>
-      </AudioProvider>
-    </PlaylistProvider>
+    <AuthProvider>
+      <PlaylistProvider>
+        <AudioProvider>
+          <AppProvider>
+            <App />
+          </AppProvider>
+        </AudioProvider>
+      </PlaylistProvider>
+    </AuthProvider>
   </StrictMode>,
 )

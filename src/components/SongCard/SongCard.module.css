@@ -1,3 +1,35 @@
+/* Swipe-to-delete wrapper */
+.swipeWrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+/* Red delete background shown during swipe */
+.swipeDeleteBg {
+  position: absolute;
+  inset: 0;
+  background: rgba(220, 50, 50, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--space-lg);
+  color: #e05252;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.swipeDeleteBgVisible {
+  opacity: 1;
+}
+
+.swipeDeleteBg svg {
+  width: 22px;
+  height: 22px;
+}
+
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-md);
