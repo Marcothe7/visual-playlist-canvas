@@ -117,7 +117,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
               setSwipeX(0)
             }
           }}
-          onClick={doubleTapHandlers.onClick || handleCardClick}
+          onClick={(e) => { doubleTapHandlers.onClick(e); handleCardClick(e) }}
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role="checkbox"
@@ -173,13 +173,13 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
               </button>
             )}
 
-            {/* Play button */}
-            {song.previewUrl && (
-              <button
-                className={`${styles.playButton} ${isPlaying ? styles.playButtonActive : ''}`}
-                onClick={handlePlay}
-                aria-label={isPlaying ? `Pause ${song.title}` : `Play preview of ${song.title}`}
-                title={isPlaying ? 'Pause' : 'Play 30s preview'}
+            {/* Play button — always shown; disabled when no preview */}
+            <button
+                className={`${styles.playButton} ${isPlaying ? styles.playButtonActive : ''} ${!song.previewUrl ? styles.playButtonDisabled : ''}`}
+                onClick={song.previewUrl ? handlePlay : undefined}
+                aria-label={isPlaying ? `Pause ${song.title}` : song.previewUrl ? `Play preview of ${song.title}` : 'No preview available'}
+                title={isPlaying ? 'Pause' : song.previewUrl ? 'Play 30s preview' : 'No preview available'}
+                disabled={!song.previewUrl}
               >
                 {isPlaying ? (
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -192,7 +192,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
                   </svg>
                 )}
               </button>
-            )}
 
             {/* Now Playing equalizer bars */}
             {isPlaying && (

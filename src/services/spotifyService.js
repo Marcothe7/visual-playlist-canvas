@@ -109,8 +109,13 @@ export async function searchTracks(query) {
     const msg = body.error || `Spotify search failed (HTTP ${res.status})`
     throw new Error(msg)
   }
-  const { results } = await res.json()
-  return results
+  let data
+  try {
+    data = await res.json()
+  } catch {
+    throw new Error('Search is unavailable. Try again on the live site or use manual entry.')
+  }
+  return data.results ?? []
 }
 
 // ─── Legacy stubs (kept so existing imports don't break) ─────────────────────
