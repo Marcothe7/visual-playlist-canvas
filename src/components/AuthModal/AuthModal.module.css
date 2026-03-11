@@ -231,5 +231,6 @@
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     max-height: 90dvh;
     overflow-y: auto;
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
   }
 }

@@ -441,6 +441,7 @@
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     max-height: 88dvh;
     overflow-y: auto;
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
   }
   .resultsList {
     max-height: none;

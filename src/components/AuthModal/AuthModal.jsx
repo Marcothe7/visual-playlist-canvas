@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import styles from './AuthModal.module.css'
@@ -260,6 +260,14 @@ function ForgotTab({ onSwitch }) {
 
 export function AuthModal() {
   const { authModalOpen, authModalTab, closeAuthModal, setTab } = useAuth()
+
+  // Lock background scroll while modal is open
+  useEffect(() => {
+    if (authModalOpen) {
+      document.body.style.overflow = 'hidden'
+      return () => { document.body.style.overflow = '' }
+    }
+  }, [authModalOpen])
 
   function handleOverlayClick(e) {
     if (e.target === e.currentTarget) closeAuthModal()

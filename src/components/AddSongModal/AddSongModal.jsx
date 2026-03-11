@@ -17,7 +17,12 @@ function SpotifySearch({ onAdd }) {
   const inputRef = useRef(null)
   const timerRef = useRef(null)
 
-  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [])
 
   const runSearch = useCallback(async (q) => {
     if (!q.trim()) { setResults([]); return }
@@ -188,6 +193,14 @@ export function AddSongModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('search')
 
   useEffect(() => { if (isOpen) setMode('search') }, [isOpen])
+
+  // Lock background scroll while modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      return () => { document.body.style.overflow = '' }
+    }
+  }, [isOpen])
 
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') onClose() }
