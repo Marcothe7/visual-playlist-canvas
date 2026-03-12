@@ -60,7 +60,7 @@
   background: var(--color-surface-3);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .wrapper {
     display: none;
   }

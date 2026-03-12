@@ -211,7 +211,14 @@
   min-width: 0;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 768px) {
+  .header {
+    padding: 0 var(--space-md);
+    gap: var(--space-sm);
+  }
+  .subtitle {
+    display: none;
+  }
   .densityToggle {
     display: none;
   }
@@ -221,20 +228,9 @@
   .addButtonDesktop {
     display: none;
   }
-}
-
-@media (max-width: 640px) {
-  .header {
-    padding: 0 var(--space-md);
-    gap: var(--space-sm);
-  }
-  .subtitle {
-    display: none;
-  }
   .spotifyBtn {
     display: none;
   }
-  /* Hide playlist switcher — BottomNav handles library switching on mobile */
   .playlistSwitcherWrap {
     display: none;
   }

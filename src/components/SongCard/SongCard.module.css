@@ -325,3 +325,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Mobile: iOS HIG touch targets */
+@media (max-width: 768px) {
+  .card {
+    border-radius: var(--radius-lg);
+  }
+  .playButton {
+    width: var(--touch-target);
+    height: var(--touch-target);
+    opacity: 1;
+  }
+  .playButton svg {
+    width: 18px;
+    height: 18px;
+  }
+  .yearBadge {
+    font-size: 0.75rem;
+  }
+}

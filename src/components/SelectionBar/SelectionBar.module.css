@@ -118,6 +118,16 @@
   to { transform: rotate(360deg); }
 }
 
+@media (max-width: 768px) {
+  .clearBtn, .deleteBtn {
+    min-height: var(--touch-target);
+    padding: 10px 16px;
+  }
+  .recBtn {
+    min-height: var(--touch-target);
+  }
+}
+
 @media (max-width: 480px) {
   .bar {
     padding: var(--space-sm) var(--space-md);

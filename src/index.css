@@ -56,7 +56,7 @@
   /* Z-index layers */
   --z-bar:     100;
   --z-panel:   200;
-  --z-overlay: 290;
+  --z-overlay: 300;
   --z-modal:   300;
 
   /* Layout */
@@ -64,7 +64,8 @@
   --bar-height:         72px;
   --panel-width:        400px;
   --now-playing-height: 64px;
-  --mobile-nav-height:  64px;
+  --mobile-nav-height:  52px;
+  --touch-target:       44px;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -133,4 +134,11 @@ img {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* ─── Mobile: prevent iOS auto-zoom on input focus ──────────────────────── */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
 }

@@ -65,3 +65,15 @@
 .deleteItem:active {
   background: rgba(224, 82, 82, 0.1);
 }
+
+/* Mobile: larger touch targets */
+@media (max-width: 768px) {
+  .menu {
+    min-width: 220px;
+  }
+  .menuItem {
+    min-height: var(--touch-target);
+    padding: 12px var(--space-md);
+    font-size: var(--text-base);
+  }
+}

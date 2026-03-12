@@ -290,8 +290,19 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 768px) {
   .panel:not(.panelSheet) {
     display: none;
+  }
+  .navBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .closeBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .addAllBtn {
+    min-height: var(--touch-target);
   }
 }

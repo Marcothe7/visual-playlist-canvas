@@ -221,7 +221,7 @@
 }
 
 /* Mobile bottom sheet */
-@media (max-width: 639px) {
+@media (max-width: 768px) {
   .overlay {
     align-items: flex-end;
     padding: 0;
@@ -232,5 +232,15 @@
     max-height: 90dvh;
     overflow-y: auto;
     padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+  }
+  .closeBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .submitBtn {
+    min-height: var(--touch-target);
+  }
+  .googleBtn {
+    min-height: var(--touch-target);
   }
 }

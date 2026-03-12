@@ -430,7 +430,7 @@
 }
 
 /* Mobile bottom sheet */
-@media (max-width: 639px) {
+@media (max-width: 768px) {
   .overlay {
     align-items: flex-end;
     padding: 0;
@@ -442,6 +442,25 @@
     max-height: 88dvh;
     overflow-y: auto;
     padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+  }
+  .closeBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .addBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .addBtn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .cancelBtn, .submitBtn {
+    min-height: var(--touch-target);
+  }
+  .modeToggle {
+    min-height: 36px;
+    padding: 8px 14px;
   }
   .resultsList {
     max-height: none;

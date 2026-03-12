@@ -138,22 +138,39 @@
   color: #fff;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 768px) {
   .bar {
     bottom: var(--mobile-nav-height);
   }
   .barWithSelection {
     bottom: calc(var(--mobile-nav-height) + var(--bar-height));
   }
-}
-
-@media (max-width: 640px) {
   .inner {
     padding: 0 var(--space-md);
     gap: var(--space-sm);
   }
   .info {
-    width: 120px;
+    width: 140px;
+  }
+  .stopBtn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .stopBtn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .progressTrack {
+    height: 6px;
+  }
+  .times {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .info {
+    width: 110px;
   }
   .times {
     display: none;
