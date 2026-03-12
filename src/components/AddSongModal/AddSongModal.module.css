@@ -429,17 +429,18 @@
   margin: var(--space-sm) auto 0;
 }
 
-/* Mobile bottom sheet */
+/* Mobile — top-aligned so the keyboard never covers the modal */
 @media (max-width: 768px) {
   .overlay {
-    align-items: flex-end;
+    align-items: flex-start;
     padding: 0;
+    padding-top: max(env(safe-area-inset-top, 0px), 8px);
   }
   .modal,
   .modalWide {
     width: 100%;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    max-height: 88dvh;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    max-height: calc(100dvh - max(env(safe-area-inset-top, 0px), 8px));
     overflow-y: auto;
     padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
   }

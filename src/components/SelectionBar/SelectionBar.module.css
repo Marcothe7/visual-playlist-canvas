@@ -119,6 +119,11 @@
 }
 
 @media (max-width: 768px) {
+  .bar {
+    /* Sit above the bottom nav, not behind it */
+    bottom: var(--mobile-nav-height);
+    z-index: calc(var(--z-bar) + 10);
+  }
   .clearBtn, .deleteBtn {
     min-height: var(--touch-target);
     padding: 10px 16px;

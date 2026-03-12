@@ -1,33 +1,8 @@
-/* Swipe-to-delete wrapper */
+/* Card wrapper */
 .swipeWrapper {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-md);
-}
-
-/* Red delete background shown during swipe */
-.swipeDeleteBg {
-  position: absolute;
-  inset: 0;
-  background: rgba(220, 50, 50, 0.2);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: var(--space-lg);
-  color: #e05252;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.swipeDeleteBgVisible {
-  opacity: 1;
-}
-
-.swipeDeleteBg svg {
-  width: 22px;
-  height: 22px;
 }
 
 .card {
@@ -342,5 +317,15 @@
   }
   .yearBadge {
     font-size: 0.75rem;
+  }
+  /* Ensure swipe wrapper fills the grid cell so all cards are the same size */
+  .swipeWrapper {
+    height: 100%;
+  }
+  /* Art fills remaining space instead of forcing a fixed aspect-ratio */
+  .artWrapper {
+    aspect-ratio: unset;
+    flex: 1;
+    min-height: 0;
   }
 }

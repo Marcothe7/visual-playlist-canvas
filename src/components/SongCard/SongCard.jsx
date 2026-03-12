@@ -4,7 +4,6 @@ import { getGradientFromString } from '@/utils/colorFromString'
 import { useAudio } from '@/context/AudioContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
-import { useDoubleTap } from '@/hooks/useDoubleTap'
 import { SongContextMenu } from '@/components/SongContextMenu/SongContextMenu'
 import styles from './SongCard.module.css'
 
@@ -20,7 +19,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
   const isMobile  = useIsMobile()
 
   const [contextMenu, setContextMenu] = useState(null) // { x, y } | null
-  const [swipeX,      setSwipeX]      = useState(0)
 
   // ── Long-press → context menu (mobile only)
   const longPressHandlers = useLongPress((e) => {
@@ -28,11 +26,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
     const { clientX, clientY } = e.touches?.[0] ?? e
     setContextMenu({ x: clientX, y: clientY })
   }, 500)
-
-  // ── Double-tap → toggle select (mobile only, single-tap plays)
-  const doubleTapHandlers = useDoubleTap(() => {
-    if (isMobile) onToggle(song.id)
-  })
 
   function handleKeyDown(e) {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -51,14 +44,9 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
     onDelete(song.id)
   }
 
-  // On mobile: single tap plays preview (if available); on desktop: single tap selects
+  // Single tap always selects (on both mobile and desktop)
   function handleCardClick(e) {
-    if (isMobile) {
-      // double-tap handler will call onToggle; single tap plays preview
-      if (song.previewUrl) play(song.id, song.previewUrl)
-    } else {
-      onToggle(song.id)
-    }
+    onToggle(song.id)
   }
 
   const cardClass = [
@@ -67,9 +55,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
     featured ? styles.featured : '',
     isPlaying ? styles.nowPlaying : '',
   ].join(' ')
-
-  // Swipe-to-delete on mobile: Framer Motion drag
-  const showDeleteReveal = isMobile && swipeX < -60
 
   return (
     <>
@@ -88,16 +73,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
       </AnimatePresence>
 
       <div className={styles.swipeWrapper}>
-        {/* Red delete reveal behind the card on swipe */}
-        {isMobile && (
-          <div className={`${styles.swipeDeleteBg} ${showDeleteReveal ? styles.swipeDeleteBgVisible : ''}`} aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-            </svg>
-          </div>
-        )}
-
         <motion.div
           className={cardClass}
           variants={cardVariants}
@@ -105,19 +80,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
           animate="animate"
           whileHover={!isMobile ? { scale: 1.02 } : undefined}
           whileTap={{ scale: 0.97 }}
-          // Swipe-to-delete (mobile only)
-          drag={isMobile && !featured ? 'x' : false}
-          dragConstraints={{ left: -120, right: 0 }}
-          dragElastic={0.15}
-          onDrag={(_, info) => setSwipeX(info.offset.x)}
-          onDragEnd={(_, info) => {
-            if (info.offset.x < -80) {
-              onDelete(song.id)
-            } else {
-              setSwipeX(0)
-            }
-          }}
-          onClick={(e) => { doubleTapHandlers.onClick(e); handleCardClick(e) }}
+          onClick={handleCardClick}
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role="checkbox"

@@ -230,8 +230,7 @@ export function AddSongModal({ isOpen, onClose }) {
             {...modalMotion}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
           >
-            {/* Drag handle on mobile */}
-            {isMobile && <div className={styles.dragHandle} aria-hidden="true" />}
+            {/* No drag handle — modal is top-aligned on mobile */}
 
             <div className={styles.modalHeader}>
               <h2 id="modal-title" className={styles.modalTitle}>
