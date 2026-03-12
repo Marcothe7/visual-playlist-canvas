@@ -80,13 +80,23 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
           animate="animate"
           whileHover={!isMobile ? { scale: 1.02 } : undefined}
           whileTap={{ scale: 0.97 }}
-          onClick={handleCardClick}
+          onClick={(e) => {
+            // Long-press hook calls e.preventDefault() after a long-press fires,
+            // so we skip selection in that case (context menu opened instead).
+            if (isMobile) longPressHandlers.onClick(e)
+            if (!e.defaultPrevented) handleCardClick(e)
+          }}
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role="checkbox"
           aria-checked={song.isSelected}
           aria-label={`${song.title} by ${song.artist}${song.isSelected ? ', selected' : ''}`}
-          {...(isMobile ? longPressHandlers : {})}
+          {...(isMobile ? {
+            onPointerDown:   longPressHandlers.onPointerDown,
+            onPointerUp:     longPressHandlers.onPointerUp,
+            onPointerLeave:  longPressHandlers.onPointerLeave,
+            onPointerCancel: longPressHandlers.onPointerCancel,
+          } : {})}
         >
           {/* Art — full-bleed for all cards; info overlaid on featured */}
           <div className={styles.artWrapper}>
