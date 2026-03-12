@@ -318,8 +318,11 @@
   .yearBadge {
     font-size: 0.75rem;
   }
-  /* Ensure swipe wrapper fills the grid cell so all cards are the same size */
+  /* Ensure swipe wrapper and card fill the grid cell so all cards are the same size */
   .swipeWrapper {
+    height: 100%;
+  }
+  .card {
     height: 100%;
   }
   /* Art fills remaining space instead of forcing a fixed aspect-ratio */

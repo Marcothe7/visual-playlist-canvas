@@ -13,7 +13,7 @@ import { NowPlayingBar } from '@/components/NowPlayingBar/NowPlayingBar'
 import { UndoToast } from '@/components/UndoToast/UndoToast'
 import { AuthModal } from '@/components/AuthModal/AuthModal'
 import { BottomNav } from '@/components/BottomNav/BottomNav'
-import { fetchInitialSongs, handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired } from '@/services/spotifyService'
+import { handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired } from '@/services/spotifyService'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { fetchPreferences, upsertPreferences, fetchRecommendationHistory } from '@/services/supabaseService'
@@ -100,13 +100,8 @@ export default function App() {
 
     if (!songsLoading) return
 
-    if (activePlaylist?.songs?.length > 0) {
-      dispatch({ type: 'SET_SONGS', payload: activePlaylist.songs })
-    } else {
-      fetchInitialSongs()
-        .then(s => dispatch({ type: 'SET_SONGS', payload: s }))
-        .catch(() => dispatch({ type: 'SET_SONGS', payload: [] }))
-    }
+    // Always start with saved songs only — new users see an empty library
+    dispatch({ type: 'SET_SONGS', payload: activePlaylist?.songs ?? [] })
   }, [activeId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist songs to PlaylistContext whenever they change
