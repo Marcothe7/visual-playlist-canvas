@@ -378,6 +378,27 @@
   cursor: default;
 }
 
+/* ── Scope warning ───────────────────────────────────────────────────────────── */
+.scopeWarn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(255, 160, 0, 0.1);
+  border: 1px solid rgba(255, 160, 0, 0.3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.scopeWarn p { flex: 1; }
+
+.scopeWarn .connectBtn {
+  margin-top: 0;
+  padding: 6px var(--space-md);
+  font-size: var(--text-xs);
+}
+
 /* ── Misc ────────────────────────────────────────────────────────────────────── */
 .center {
   display: flex;

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   isSpotifyAuthenticated,
   initiateSpotifyAuth,
+  loadToken,
   getUserPlaylists,
   getPlaylistTracks,
   searchArtists,
@@ -39,6 +40,11 @@ function Spinner() {
 // ─── Main ImportTab ───────────────────────────────────────────────────────────
 export function ImportTab({ onAdd }) {
   const isConnected = isSpotifyAuthenticated()
+  // Check if the stored token has playlist-read-private scope
+  const hasPlaylistScope = (() => {
+    const t = loadToken()
+    return !t?.scope || t.scope.includes('playlist-read-private')
+  })()
 
   // Navigation within the tab: 'home' shows both sections; 'albums' shows album drill-down
   const [view,           setView]           = useState('home')
@@ -198,6 +204,13 @@ export function ImportTab({ onAdd }) {
       {/* ── My Playlists ── */}
       <div className={styles.section}>
         <p className={styles.sectionTitle}>My Playlists</p>
+
+        {!hasPlaylistScope && (
+          <div className={styles.scopeWarn}>
+            <p>Reconnect Spotify to enable playlist access.</p>
+            <button className={styles.connectBtn} onClick={initiateSpotifyAuth}>Reconnect</button>
+          </div>
+        )}
 
         {playlistsLoading && <div className={styles.center}><Spinner /></div>}
         {playlistsError && <p className={styles.errorMsg}>{playlistsError}</p>}

@@ -37,10 +37,10 @@ export default async function handler(req, res) {
       })
     }
 
-    const { access_token, refresh_token, expires_in } = await tokenRes.json()
+    const { access_token, refresh_token, expires_in, scope } = await tokenRes.json()
     const expires_at = Date.now() + expires_in * 1000
 
-    return res.status(200).json({ access_token, refresh_token, expires_at })
+    return res.status(200).json({ access_token, refresh_token, expires_at, scope })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Internal server error' })
   }
