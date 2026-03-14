@@ -34,8 +34,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    const safeLimit = Math.min(50, 50)
     const songs = []
-    let url = `https://api.spotify.com/v1/playlists/${id}/tracks?limit=100`
+    let url = `https://api.spotify.com/v1/playlists/${id}/tracks?limit=${safeLimit}`
 
     while (url) {
       const r = await fetch(url, {
@@ -54,9 +55,11 @@ export default async function handler(req, res) {
         if (song) songs.push(song)
       })
 
+      console.log('Playlist tracks page:', data.items?.length ?? 0, 'total so far:', songs.length)
       url = data.next ?? null
     }
 
+    console.log('Playlist tracks:', songs.length)
     return res.status(200).json({ songs })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Internal server error' })

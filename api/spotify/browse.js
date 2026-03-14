@@ -34,13 +34,14 @@ export default async function handler(req, res) {
   try {
     const appToken = await getClientCredentialsToken(clientId, clientSecret)
     const authHeader = { Authorization: `Bearer ${appToken}` }
+    const safeLimit = (n) => Math.min(n || 20, 50)
 
     // ── Search artists ───────────────────────────────────────────────────────
     if (action === 'search-artists') {
       if (!q?.trim()) return res.status(400).json({ error: 'q query parameter is required' })
 
       const r = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=artist&limit=6`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=artist&limit=${safeLimit(6)}`,
         { headers: authHeader }
       )
       if (!r.ok) {
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
       if (!id?.trim()) return res.status(400).json({ error: 'id query parameter is required' })
 
       const r = await fetch(
-        `https://api.spotify.com/v1/artists/${id}/albums?limit=20`,
+        `https://api.spotify.com/v1/artists/${id}/albums?limit=${safeLimit(20)}`,
         { headers: authHeader }
       )
       if (!r.ok) {

@@ -51,11 +51,12 @@ export default async function handler(req, res) {
   try {
     const appToken = await getClientCredentialsToken(clientId, clientSecret)
     const authHeader = { Authorization: `Bearer ${appToken}` }
+    const safeLimit = (n) => Math.min(n || 20, 50)
 
     // Fetch album info and track list in parallel
     const [albumRes, tracksRes] = await Promise.all([
-      fetch(`https://api.spotify.com/v1/albums/${id}`,              { headers: authHeader }),
-      fetch(`https://api.spotify.com/v1/albums/${id}/tracks?limit=50`, { headers: authHeader }),
+      fetch(`https://api.spotify.com/v1/albums/${id}`,                              { headers: authHeader }),
+      fetch(`https://api.spotify.com/v1/albums/${id}/tracks?limit=${safeLimit(50)}`, { headers: authHeader }),
     ])
 
     if (!albumRes.ok || !tracksRes.ok) {
