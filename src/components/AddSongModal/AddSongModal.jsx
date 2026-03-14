@@ -212,10 +212,6 @@ export function AddSongModal({ isOpen, onClose }) {
   }, [isOpen, onClose])
 
   function handleAdd(song) { addSong({ ...song, isSelected: false }) }
-  // Batch import: add all songs at once (e.g. from a playlist or album)
-  function handleBatchAdd(songs) {
-    songs.forEach(song => addSong({ ...song, isSelected: false }))
-  }
   function handleOverlayClick(e) { if (e.target === e.currentTarget) onClose() }
 
   const modalMotion = isMobile
@@ -266,7 +262,7 @@ export function AddSongModal({ isOpen, onClose }) {
             </div>
 
             {mode === 'search' && <SpotifySearch onAdd={handleAdd} />}
-            {mode === 'import' && <ImportTab onAdd={handleBatchAdd} />}
+            {mode === 'import' && <ImportTab onAdd={handleAdd} />}
             {mode === 'manual' && <ManualForm onAdd={handleAdd} onClose={onClose} />}
           </motion.div>
         </motion.div>
