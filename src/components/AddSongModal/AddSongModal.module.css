@@ -51,6 +51,36 @@
   border-color: var(--color-accent);
 }
 
+/* ── Tab group (Search / Import / Manual) ───────────────────────────────────── */
+.tabGroup {
+  display: flex;
+  gap: 2px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.tabBtn {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  color: var(--color-text);
+}
+
+.tabBtnActive {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
 .modalTitle {
   font-size: var(--text-xl);
   font-weight: 700;
@@ -462,6 +492,16 @@
   .modeToggle {
     min-height: 36px;
     padding: 8px 14px;
+  }
+
+  .tabGroup {
+    gap: 1px;
+    padding: 2px;
+  }
+
+  .tabBtn {
+    padding: 6px 10px;
+    min-height: 36px;
   }
   .resultsList {
     max-height: none;

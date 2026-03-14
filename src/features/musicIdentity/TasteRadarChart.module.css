@@ -1,0 +1,15 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.svg {
+  width: 220px;
+  height: 220px;
+  overflow: visible;
+}
+
+.dataPoly {
+  filter: drop-shadow(0 0 8px rgba(29, 185, 84, 0.4));
+}

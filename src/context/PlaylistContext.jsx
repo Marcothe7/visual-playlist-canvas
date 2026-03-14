@@ -108,6 +108,45 @@ function playlistReducer(state, action) {
   }
 }
 
+// ─── Preview enrichment ────────────────────────────────────────────────────────
+// Fetch Deezer previews via the serverless proxy for songs that have none.
+// Returns { enrichedPlaylists, previews } so the caller can persist found URLs.
+async function enrichMissingPreviews(playlists) {
+  const missing = []
+  for (const pl of playlists) {
+    for (const song of pl.songs) {
+      if (!song.previewUrl && song.title && song.artist) {
+        missing.push({ id: song.id, title: song.title, artist: song.artist })
+      }
+    }
+  }
+  if (missing.length === 0) return { enrichedPlaylists: playlists, previews: {} }
+
+  let previews = {}
+  try {
+    const res = await fetch('/api/deezer-preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ songs: missing }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      previews = data.previews ?? {}
+    }
+  } catch {
+    // Network error — skip silently
+  }
+
+  const enrichedPlaylists = playlists.map(pl => ({
+    ...pl,
+    songs: pl.songs.map(song =>
+      previews[song.id] ? { ...song, previewUrl: previews[song.id] } : song
+    ),
+  }))
+
+  return { enrichedPlaylists, previews }
+}
+
 // ─── Contexts ──────────────────────────────────────────────────────────────────
 const PlaylistStateCtx    = createContext(null)
 const PlaylistDispatchCtx = createContext(null)
@@ -161,15 +200,40 @@ export function PlaylistProvider({ children }) {
         return
       }
 
-      // Fetch songs for each playlist from Supabase only
-      const playlists = await Promise.all(
+      // Fetch songs for each playlist from Supabase only,
+      // deduplicating by spotifyId to fix any duplicate rows in the DB.
+      const rawPlaylists = await Promise.all(
         dbPlaylists.map(async (pl) => {
-          const songs = await fetchPlaylistSongs(pl.id)
+          const allSongs = await fetchPlaylistSongs(pl.id)
+          const seen = new Set()
+          const songs = allSongs.filter(s => {
+            const key = s.spotifyId || s.id
+            if (seen.has(key)) return false
+            seen.add(key)
+            return true
+          })
+          // If duplicates were found, overwrite the DB with the clean list
+          if (songs.length < allSongs.length) {
+            upsertSongs(pl.id, user.id, songs).catch(() => {})
+          }
           return { id: pl.id, name: pl.name, songs }
         })
       )
 
-      dispatch({ type: 'HYDRATE_FROM_DB', payload: { playlists, activeId: playlists[0].id } })
+      // Enrich songs that have no preview URL via Deezer proxy (best-effort)
+      const { enrichedPlaylists, previews } = await enrichMissingPreviews(rawPlaylists)
+
+      dispatch({ type: 'HYDRATE_FROM_DB', payload: { playlists: enrichedPlaylists, activeId: enrichedPlaylists[0].id } })
+
+      // Persist any newly found preview URLs back to Supabase so they don't need re-fetching
+      if (Object.values(previews).some(Boolean)) {
+        for (const pl of enrichedPlaylists) {
+          const hadMissing = pl.songs.some(s => previews[s.id])
+          if (hadMissing) {
+            upsertSongs(pl.id, user.id, pl.songs).catch(() => {})
+          }
+        }
+      }
     } catch (err) {
       console.warn('Supabase hydration failed:', err)
       dispatch({ type: 'SET_HYDRATING', payload: false })

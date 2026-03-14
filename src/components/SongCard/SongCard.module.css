@@ -3,6 +3,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-md);
+  height: 100%; /* fill grid cell so card can use height: 100% */
 }
 
 .card {
@@ -15,7 +16,8 @@
   box-shadow: var(--shadow-card);
   transition: box-shadow var(--transition-base);
   user-select: none;
-  /* fits into grid-auto-rows */
+  /* fits into grid-auto-rows — must be 100% so flex: 1 on artWrapper works */
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -33,7 +35,8 @@
 /* Art wrapper */
 .artWrapper {
   position: relative;
-  aspect-ratio: 1 / 1;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: var(--color-surface-3);
 }
@@ -102,6 +105,7 @@
 /* Info section */
 .info {
   padding: 10px var(--space-sm) var(--space-sm);
+  flex-shrink: 0; /* prevent artWrapper from squeezing this out */
 }
 
 .songTitle {
@@ -325,10 +329,5 @@
   .card {
     height: 100%;
   }
-  /* Art fills remaining space instead of forcing a fixed aspect-ratio */
-  .artWrapper {
-    aspect-ratio: unset;
-    flex: 1;
-    min-height: 0;
-  }
+  /* Art fills remaining space (aspect-ratio already unset globally) */
 }

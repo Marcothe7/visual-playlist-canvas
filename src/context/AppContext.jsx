@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer } from 'react'
 
 // ─── Initial State ────────────────────────────────────────────────────────────
-const initialState = {
+const defaultState = {
   songs:                  [],
   songsLoading:           true,
   searchQuery:            '',
@@ -15,6 +15,23 @@ const initialState = {
   recommendationsLoading: false,
   recommendationsError:   null,
   spotifyToken:           null,   // { access_token, refresh_token, expires_at } | null
+
+  // ── New feature state ──────────────────────────────────────────────────────
+  activeView:      'library',   // 'library' | 'map' | 'battle' | 'identity'
+  tasteProfile:    null,        // { energy, danceability, valence, tempo, acousticness, instrumentalness }
+  musicIdentity:   null,        // { name, description, genreDistribution, moodCharacteristics }
+  identityLoading: false,
+  battleRatings:   {},          // { [songId]: number }  ELO rating, default 1000
+  battleHistory:   [],          // [{ winnerId, loserId, winnerTitle, loserTitle, date }]
+}
+
+function getInitialState() {
+  let battleRatings = {}
+  try {
+    const stored = localStorage.getItem('vpc_battleRatings')
+    if (stored) battleRatings = JSON.parse(stored)
+  } catch {}
+  return { ...defaultState, battleRatings }
 }
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -182,6 +199,37 @@ function appReducer(state, action) {
     case 'SPOTIFY_TOKEN_CLEAR':
       return { ...state, spotifyToken: null }
 
+    // ── View routing ──────────────────────────────────────────────────────────
+    case 'SET_ACTIVE_VIEW':
+      return { ...state, activeView: action.payload }
+
+    // ── Music Identity ────────────────────────────────────────────────────────
+    case 'SET_TASTE_PROFILE':
+      return { ...state, tasteProfile: action.payload }
+
+    case 'SET_MUSIC_IDENTITY':
+      return { ...state, musicIdentity: action.payload }
+
+    case 'SET_IDENTITY_LOADING':
+      return { ...state, identityLoading: action.payload }
+
+    // ── Music Battles ─────────────────────────────────────────────────────────
+    case 'UPDATE_BATTLE_RATINGS': {
+      const newRatings = { ...state.battleRatings, ...action.payload }
+      try { localStorage.setItem('vpc_battleRatings', JSON.stringify(newRatings)) } catch {}
+      return { ...state, battleRatings: newRatings }
+    }
+
+    case 'ADD_BATTLE_RESULT':
+      return { ...state, battleHistory: [action.payload, ...state.battleHistory] }
+
+    case 'HYDRATE_BATTLE_DATA':
+      return {
+        ...state,
+        battleRatings: action.payload.ratings ?? {},
+        battleHistory: action.payload.history ?? [],
+      }
+
     default:
       return state
   }
@@ -195,7 +243,7 @@ const AppDispatchContext = createContext(null)
 // Note: song persistence is handled by PlaylistContext (SYNC_SONGS action).
 // AppContext manages transient UI state + in-memory song list.
 export function AppProvider({ children }) {
-  const [state, dispatch] = useReducer(appReducer, initialState)
+  const [state, dispatch] = useReducer(appReducer, undefined, getInitialState)
 
   return (
     <AppStateContext.Provider value={state}>

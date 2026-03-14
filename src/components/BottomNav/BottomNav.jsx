@@ -39,11 +39,42 @@ function SparkleIcon() {
   )
 }
 
+function MapIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+      <line x1="9" y1="3" x2="9" y2="18" />
+      <line x1="15" y1="6" x2="15" y2="21" />
+    </svg>
+  )
+}
+
+function SwordIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+      <line x1="13" y1="19" x2="19" y2="13" />
+      <line x1="16" y1="16" x2="20" y2="20" />
+      <line x1="19" y1="21" x2="21" y2="19" />
+    </svg>
+  )
+}
+
+function IdentityIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" />
+      <path d="M3 20a9 9 0 0 1 18 0" />
+    </svg>
+  )
+}
+
 export function BottomNav({ onAddSong }) {
-  const { isPanelOpen, isModalOpen } = useAppState()
+  const { isPanelOpen, isModalOpen, activeView } = useAppState()
   const dispatch = useAppDispatch()
 
-  function handleLibrary() {
+  function setView(view) {
+    dispatch({ type: 'SET_ACTIVE_VIEW', payload: view })
     if (isPanelOpen) dispatch({ type: 'CLOSE_PANEL' })
     if (isModalOpen) dispatch({ type: 'CLOSE_MODAL' })
   }
@@ -56,15 +87,13 @@ export function BottomNav({ onAddSong }) {
     dispatch({ type: 'OPEN_PANEL' })
   }
 
-  const isLibraryActive = !isPanelOpen && !isModalOpen
-  const isPanelActive   = isPanelOpen
-  const isModalActive   = isModalOpen
+  const isLibraryActive = activeView === 'library' && !isPanelOpen && !isModalOpen
 
   return (
     <nav className={styles.nav} aria-label="Main navigation">
       <button
         className={`${styles.navItem} ${isLibraryActive ? styles.active : ''}`}
-        onClick={handleLibrary}
+        onClick={() => setView('library')}
         aria-label="Library"
       >
         <LibraryIcon />
@@ -72,7 +101,7 @@ export function BottomNav({ onAddSong }) {
       </button>
 
       <button
-        className={`${styles.navItem} ${isModalActive ? styles.active : ''}`}
+        className={`${styles.navItem} ${isModalOpen ? styles.active : ''}`}
         onClick={handleSearch}
         aria-label="Search"
       >
@@ -90,12 +119,39 @@ export function BottomNav({ onAddSong }) {
       </button>
 
       <button
-        className={`${styles.navItem} ${isPanelActive ? styles.active : ''}`}
+        className={`${styles.navItem} ${isPanelOpen ? styles.active : ''}`}
         onClick={handleAIPicks}
         aria-label="AI Picks"
       >
         <SparkleIcon />
         <span>AI Picks</span>
+      </button>
+
+      <button
+        className={`${styles.navItem} ${activeView === 'map' ? styles.active : ''}`}
+        onClick={() => setView('map')}
+        aria-label="Music Map"
+      >
+        <MapIcon />
+        <span>Map</span>
+      </button>
+
+      <button
+        className={`${styles.navItem} ${activeView === 'battle' ? styles.active : ''}`}
+        onClick={() => setView('battle')}
+        aria-label="Battle"
+      >
+        <SwordIcon />
+        <span>Battle</span>
+      </button>
+
+      <button
+        className={`${styles.navItem} ${activeView === 'identity' ? styles.active : ''}`}
+        onClick={() => setView('identity')}
+        aria-label="My Identity"
+      >
+        <IdentityIcon />
+        <span>Identity</span>
       </button>
     </nav>
   )

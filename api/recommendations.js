@@ -13,15 +13,35 @@ Rules you MUST follow:
 - Each object must have exactly these fields: title, artist, album, albumArt, reason.
 - Set albumArt to null. reason should be 1–2 punchy sentences on why this track fits the vibe.`
 
-function buildUserPrompt(songs) {
+function buildUserPrompt(songs, tasteProfile, topBattleWinners) {
   const list = songs
     .map((s, i) => `${i + 1}. "${s.title}" by ${s.artist}${s.album ? ` (${s.album})` : ''}${s.year ? `, ${s.year}` : ''}${s.genre?.length ? ` [${s.genre.join(', ')}]` : ''}`)
     .join('\n')
 
+  // Optional taste profile context
+  let profileContext = ''
+  if (tasteProfile && typeof tasteProfile.energy === 'number') {
+    const energyLabel    = tasteProfile.energy    > 0.7 ? 'high'   : tasteProfile.energy    > 0.4 ? 'medium' : 'low'
+    const valenceLabel   = tasteProfile.valence   > 0.6 ? 'happy'  : tasteProfile.valence   > 0.35 ? 'neutral' : 'melancholic'
+    const danceLabel     = tasteProfile.danceability > 0.7 ? 'highly danceable' : tasteProfile.danceability > 0.4 ? 'moderately danceable' : 'non-danceable'
+    profileContext = `
+Listener's audio taste profile: ${energyLabel} energy, ${valenceLabel} mood, ${danceLabel}.
+Use this to calibrate the sonic feel — expand their palette thoughtfully, don't just mirror it.`
+  }
+
+  // Optional battle winner context
+  let battleContext = ''
+  if (topBattleWinners?.length) {
+    const winnerList = topBattleWinners.map(w => `"${w.title}" by ${w.artist}`).join(', ')
+    battleContext = `\nThe listener has voted for these songs in head-to-head battles: ${winnerList}. Weight recommendations toward songs that share sonic DNA with these winners.`
+  }
+
   return `Based on this playlist:
 ${list}
+${profileContext}${battleContext}
 
 Recommend exactly 5 songs that match the sonic vibe of this playlist. Be bold and surprising — avoid the most famous songs by these artists.
+Frame the "reason" field as "You might like this because…" followed by 1–2 punchy sentences about what connects it to their taste.
 Return ONLY a JSON array with objects: { "title": string, "artist": string, "album": string, "albumArt": null, "reason": string }
 Do not include any text before or after the JSON array.`
 }
@@ -53,7 +73,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
   }
 
-  const { songs } = req.body
+  const { songs, tasteProfile, topBattleWinners } = req.body
   if (!Array.isArray(songs) || songs.length === 0) {
     return res.status(400).json({ error: 'songs array is required' })
   }
@@ -67,10 +87,10 @@ export default async function handler(req, res) {
         'content-type':      'application/json',
       },
       body: JSON.stringify({
-        model:      'claude-sonnet-4-6',
+        model:      'claude-haiku-4-5-20251001',
         max_tokens: 2048,
         system:     SYSTEM_PROMPT,
-        messages:   [{ role: 'user', content: buildUserPrompt(songs) }],
+        messages:   [{ role: 'user', content: buildUserPrompt(songs, tasteProfile, topBattleWinners) }],
       }),
     })
 

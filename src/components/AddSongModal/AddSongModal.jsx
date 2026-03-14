@@ -5,6 +5,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { generateId } from '@/utils/generateId'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { searchTracks } from '@/services/spotifyService'
+import { ImportTab } from './ImportTab'
 import styles from './AddSongModal.module.css'
 
 // ─── Music search panel ───────────────────────────────────────────────────────
@@ -187,6 +188,8 @@ function ManualForm({ onAdd, onClose }) {
 }
 
 // ─── Modal shell ──────────────────────────────────────────────────────────────
+const TITLES = { search: 'Search Music', import: 'Import from Spotify', manual: 'Add a Song' }
+
 export function AddSongModal({ isOpen, onClose }) {
   const { addSong } = useSongs()
   const isMobile = useIsMobile()
@@ -209,6 +212,10 @@ export function AddSongModal({ isOpen, onClose }) {
   }, [isOpen, onClose])
 
   function handleAdd(song) { addSong({ ...song, isSelected: false }) }
+  // Batch import: add all songs at once (e.g. from a playlist or album)
+  function handleBatchAdd(songs) {
+    songs.forEach(song => addSong({ ...song, isSelected: false }))
+  }
   function handleOverlayClick(e) { if (e.target === e.currentTarget) onClose() }
 
   const modalMotion = isMobile
@@ -226,21 +233,30 @@ export function AddSongModal({ isOpen, onClose }) {
           role="dialog" aria-modal="true" aria-labelledby="modal-title"
         >
           <motion.div
-            className={`${styles.modal} ${mode === 'search' ? styles.modalWide : ''}`}
+            className={`${styles.modal} ${mode !== 'manual' ? styles.modalWide : ''}`}
             {...modalMotion}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
           >
-            {/* No drag handle — modal is top-aligned on mobile */}
-
             <div className={styles.modalHeader}>
               <h2 id="modal-title" className={styles.modalTitle}>
-                {mode === 'search' ? 'Search Music' : 'Add a Song'}
+                {TITLES[mode]}
               </h2>
               <div className={styles.headerRight}>
-                <button className={styles.modeToggle}
-                  onClick={() => setMode(m => m === 'search' ? 'manual' : 'search')}>
-                  {mode === 'search' ? 'Add manually' : '← Search'}
-                </button>
+                {/* Tab toggles */}
+                <div className={styles.tabGroup}>
+                  <button
+                    className={`${styles.tabBtn} ${mode === 'search' ? styles.tabBtnActive : ''}`}
+                    onClick={() => setMode('search')}
+                  >Search</button>
+                  <button
+                    className={`${styles.tabBtn} ${mode === 'import' ? styles.tabBtnActive : ''}`}
+                    onClick={() => setMode('import')}
+                  >Import</button>
+                  <button
+                    className={`${styles.tabBtn} ${mode === 'manual' ? styles.tabBtnActive : ''}`}
+                    onClick={() => setMode('manual')}
+                  >Manual</button>
+                </div>
                 <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -249,10 +265,9 @@ export function AddSongModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            {mode === 'search'
-              ? <SpotifySearch onAdd={handleAdd} />
-              : <ManualForm    onAdd={handleAdd} onClose={onClose} />
-            }
+            {mode === 'search' && <SpotifySearch onAdd={handleAdd} />}
+            {mode === 'import' && <ImportTab onAdd={handleBatchAdd} />}
+            {mode === 'manual' && <ManualForm onAdd={handleAdd} onClose={onClose} />}
           </motion.div>
         </motion.div>
       )}

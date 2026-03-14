@@ -6,6 +6,18 @@ const SEED_QUERIES = [
   'best songs ever',
 ]
 
+async function getDeezerPreview(title, artist) {
+  try {
+    const q   = encodeURIComponent(`${title} ${artist}`)
+    const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.data?.[0]?.preview ?? null
+  } catch {
+    return null
+  }
+}
+
 function spotifyTrackToSong(track) {
   if (!track || !track.id) return null
   return {
@@ -66,6 +78,15 @@ export default async function handler(req, res) {
     const songs = (data.tracks?.items ?? [])
       .map(spotifyTrackToSong)
       .filter(Boolean)
+
+    // For tracks missing Spotify preview_url, fall back to Deezer
+    await Promise.all(
+      songs.map(async (song) => {
+        if (!song.previewUrl) {
+          song.previewUrl = await getDeezerPreview(song.title, song.artist)
+        }
+      })
+    )
 
     res.setHeader('Cache-Control', 'public, max-age=3600')
     return res.status(200).json({ songs })

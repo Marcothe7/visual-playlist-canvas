@@ -1,0 +1,35 @@
+.node {
+  cursor: pointer;
+  transform-box: fill-box;   /* scale from element's own center, not SVG viewport */
+  transform-origin: center;
+  transition: transform 0.15s ease;
+}
+
+.node:hover {
+  transform: scale(1.15);
+}
+
+.node:focus-visible {
+  outline: none;
+}
+
+.node:focus-visible circle {
+  stroke-width: 3;
+}
+
+.ring {
+  transition: opacity 0.2s;
+}
+
+.node:hover .ring {
+  opacity: 0.5 !important;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; r: 27; }
+  50%       { opacity: 0.3; r: 30; }
+}
+
+.playingRing {
+  animation: pulse 1.2s ease-in-out infinite;
+}

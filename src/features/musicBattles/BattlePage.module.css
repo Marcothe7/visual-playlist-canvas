@@ -1,0 +1,144 @@
+.page {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+  min-height: 0;
+}
+
+/* Empty state */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  text-align: center;
+  margin: auto;
+  padding: var(--space-xl);
+}
+
+.emptyIcon  { font-size: 3rem; }
+.emptyTitle { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin: 0; }
+.emptyText  { font-size: 0.9375rem; color: var(--color-text-secondary); margin: 0; }
+
+/* Stats bar */
+.statsBar {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.statLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+/* Rankings */
+.rankings {
+  width: 100%;
+  max-width: 540px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-lg);
+}
+
+.rankingsTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+
+.rankingsSubtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-faint);
+  margin: 0 0 var(--space-md);
+}
+
+.rankingsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rankItem:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-faint);
+  min-width: 20px;
+  text-align: center;
+}
+
+.rankArt {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.rankInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.rankTitle {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rankArtist {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rankRating {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}

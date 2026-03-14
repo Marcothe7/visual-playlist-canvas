@@ -120,6 +120,94 @@ export async function searchTracks(query) {
   return data.results ?? []
 }
 
+// ─── Audio features ──────────────────────────────────────────────────────────
+
+/**
+ * Fetch Spotify audio features for a list of Spotify track IDs.
+ * Batches into groups of 100 (Spotify API limit).
+ * Returns an array of audio feature objects with nulls removed.
+ */
+export async function getAudioFeatures(spotifyIds) {
+  if (!spotifyIds?.length) return []
+
+  const BATCH_SIZE = 100
+  const results = []
+
+  for (let i = 0; i < spotifyIds.length; i += BATCH_SIZE) {
+    const batch = spotifyIds.slice(i, i + BATCH_SIZE)
+    const res   = await fetch(`/api/spotify/audio-features?ids=${batch.join(',')}`)
+    if (!res.ok) {
+      console.warn('Audio features fetch failed for batch', i)
+      continue
+    }
+    const data = await res.json()
+    results.push(...(data.audio_features ?? []))
+  }
+
+  return results
+}
+
+// ─── Import helpers ──────────────────────────────────────────────────────────
+
+export async function getUserPlaylists() {
+  const token = await getValidToken()
+  if (!token) throw new Error('Spotify not connected')
+  const res = await fetch('/api/spotify/user-playlists', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Failed to fetch playlists')
+  }
+  const { playlists } = await res.json()
+  return playlists ?? []
+}
+
+export async function getPlaylistTracks(playlistId) {
+  const token = await getValidToken()
+  if (!token) throw new Error('Spotify not connected')
+  const res = await fetch(`/api/spotify/playlist-tracks?id=${encodeURIComponent(playlistId)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Failed to fetch playlist tracks')
+  }
+  const { songs } = await res.json()
+  return songs ?? []
+}
+
+export async function searchArtists(query) {
+  if (!query?.trim()) return []
+  const res = await fetch(`/api/spotify/search-artists?q=${encodeURIComponent(query)}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Artist search failed')
+  }
+  const { artists } = await res.json()
+  return artists ?? []
+}
+
+export async function getArtistAlbums(artistId) {
+  const res = await fetch(`/api/spotify/artist-albums?id=${encodeURIComponent(artistId)}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Failed to fetch artist albums')
+  }
+  const { albums } = await res.json()
+  return albums ?? []
+}
+
+export async function getAlbumTracks(albumId) {
+  const res = await fetch(`/api/spotify/album-tracks?id=${encodeURIComponent(albumId)}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Failed to fetch album tracks')
+  }
+  const { songs } = await res.json()
+  return songs ?? []
+}
+
 // ─── Legacy stubs (kept so existing imports don't break) ─────────────────────
 export const hasSpotifyCredentials  = () => true
 export const hasSpotifyClientId     = () => !!import.meta.env.VITE_SPOTIFY_CLIENT_ID

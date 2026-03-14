@@ -113,6 +113,77 @@ export async function upsertPreferences(userId, prefs) {
   if (error) throw error
 }
 
+// ─── Taste Profile ────────────────────────────────────────────────────────────
+export async function saveTasteProfile(userId, profile) {
+  const { error } = await supabase
+    .from('taste_profiles')
+    .upsert({
+      user_id:              userId,
+      energy:               profile.energy               ?? null,
+      danceability:         profile.danceability         ?? null,
+      valence:              profile.valence              ?? null,
+      tempo:                profile.tempo                ?? null,
+      acousticness:         profile.acousticness         ?? null,
+      instrumentalness:     profile.instrumentalness     ?? null,
+      genre_distribution:   profile.genreDistribution    ?? [],
+      identity_name:        profile.name                 ?? null,
+      identity_description: profile.description          ?? null,
+      updated_at:           new Date().toISOString(),
+    })
+  if (error) throw error
+}
+
+export async function fetchTasteProfile(userId) {
+  const { data, error } = await supabase
+    .from('taste_profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data ?? null
+}
+
+// ─── Battle Results ───────────────────────────────────────────────────────────
+export async function saveBattleResult(userId, battle) {
+  const { error } = await supabase.from('battle_results').insert({
+    user_id:       userId,
+    winner_id:     battle.winnerId,
+    winner_title:  battle.winnerTitle,
+    winner_artist: battle.winnerArtist,
+    loser_id:      battle.loserId,
+    loser_title:   battle.loserTitle,
+    loser_artist:  battle.loserArtist,
+  })
+  if (error) throw error
+}
+
+// ─── Song ELO Ratings ─────────────────────────────────────────────────────────
+export async function upsertSongRatings(userId, ratingsMap, songsMap) {
+  // ratingsMap: { [songId]: number }
+  // songsMap:   { [songId]: { title, artist, albumArt } }
+  const rows = Object.entries(ratingsMap).map(([songId, rating]) => ({
+    user_id:     userId,
+    song_id:     songId,
+    song_title:  songsMap[songId]?.title  ?? '',
+    song_artist: songsMap[songId]?.artist ?? '',
+    album_art:   songsMap[songId]?.albumArt ?? null,
+    rating,
+    updated_at:  new Date().toISOString(),
+  }))
+  if (!rows.length) return
+  const { error } = await supabase.from('song_ratings').upsert(rows)
+  if (error) throw error
+}
+
+export async function fetchSongRatings(userId) {
+  const { data, error } = await supabase
+    .from('song_ratings')
+    .select('song_id, rating')
+    .eq('user_id', userId)
+  if (error) throw error
+  return Object.fromEntries((data ?? []).map(r => [r.song_id, r.rating]))
+}
+
 // ─── Shape converters ─────────────────────────────────────────────────────────
 function appSongToDb(song, playlistId, userId, position) {
   return {

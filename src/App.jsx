@@ -16,11 +16,21 @@ import { BottomNav } from '@/components/BottomNav/BottomNav'
 import { handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired } from '@/services/spotifyService'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { getGradientFromString } from '@/utils/colorFromString'
-import { fetchPreferences, upsertPreferences, fetchRecommendationHistory } from '@/services/supabaseService'
+import { fetchPreferences, upsertPreferences, fetchRecommendationHistory, fetchSongRatings, fetchTasteProfile } from '@/services/supabaseService'
+import { MusicIdentityPage } from '@/features/musicIdentity/MusicIdentityPage'
+import { MusicMapPage } from '@/features/musicMap/MusicMapPage'
+import { BattlePage } from '@/features/musicBattles/BattlePage'
 import styles from './App.module.css'
 
+const VIEW_TABS = [
+  { id: 'library',  label: 'Library' },
+  { id: 'map',      label: 'Map' },
+  { id: 'battle',   label: 'Battle' },
+  { id: 'identity', label: 'Identity' },
+]
+
 export default function App() {
-  const { isPanelOpen, isModalOpen, songs, songsLoading, spotifyToken } = useAppState()
+  const { isPanelOpen, isModalOpen, songs, songsLoading, spotifyToken, activeView } = useAppState()
   const dispatch = useAppDispatch()
   const { activeId, activePlaylist, syncSongs } = usePlaylists()
   const { playingId } = useAudio()
@@ -54,6 +64,36 @@ export default function App() {
         if (!historyRows?.length) return
         const recSets = historyRows.map(r => r.recs)
         dispatch({ type: 'SEED_RECOMMENDATION_HISTORY', payload: recSets })
+      })
+      .catch(() => {})
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Hydrate battle ratings + taste profile from Supabase when user signs in
+  useEffect(() => {
+    if (!user) return
+    fetchSongRatings(user.id)
+      .then(ratings => {
+        if (ratings && Object.keys(ratings).length > 0) {
+          dispatch({ type: 'HYDRATE_BATTLE_DATA', payload: { ratings, history: [] } })
+        }
+      })
+      .catch(() => {})
+    fetchTasteProfile(user.id)
+      .then(profile => {
+        if (!profile) return
+        const { identity_name, identity_description, genre_distribution, ...audioFeatures } = profile
+        dispatch({ type: 'SET_TASTE_PROFILE', payload: audioFeatures })
+        if (identity_name) {
+          dispatch({
+            type: 'SET_MUSIC_IDENTITY',
+            payload: {
+              name: identity_name,
+              description: identity_description,
+              genreDistribution: genre_distribution ?? [],
+              moodCharacteristics: [],
+            },
+          })
+        }
       })
       .catch(() => {})
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -139,12 +179,26 @@ export default function App() {
             spotifyConnected={!!spotifyToken}
             onSpotifyConnect={initiateSpotifyAuth}
           />
-        <SongGrid density={density} />
+        <nav className={styles.viewTabs} aria-label="View navigation">
+          {VIEW_TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={`${styles.viewTab} ${activeView === tab.id ? styles.viewTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: tab.id })}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        {activeView === 'library'  && <SongGrid density={density} />}
+        {activeView === 'map'      && <MusicMapPage />}
+        {activeView === 'battle'   && <BattlePage />}
+        {activeView === 'identity' && <MusicIdentityPage />}
       </div>
 
       <RecommendationPanel />
       <NowPlayingBar />
-      <SelectionBar />
+      {activeView === 'library' && <SelectionBar />}
       <UndoToast />
       <AddSongModal isOpen={isModalOpen} onClose={closeModal} />
       <RecommendationReveal />

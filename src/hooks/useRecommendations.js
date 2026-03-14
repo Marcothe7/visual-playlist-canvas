@@ -10,7 +10,12 @@ export function useRecommendations() {
   async function fetchRecommendations(selectedSongs) {
     dispatch({ type: 'FETCH_RECOMMENDATIONS_START' })
     try {
-      const recs = await getRecommendations(selectedSongs)
+      // Pass taste profile and battle data for improved context-aware recommendations
+      const recs = await getRecommendations(selectedSongs, {
+        tasteProfile:  state.tasteProfile,
+        battleRatings: state.battleRatings,
+        allSongs:      state.songs,
+      })
       // Enrich each recommendation with real album art + previewUrl from Spotify
       const enriched = await Promise.all(
         recs.map(async rec => {

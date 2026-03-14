@@ -16,11 +16,26 @@ function parseRecommendations(items) {
   }))
 }
 
-export async function getRecommendations(songs) {
+/**
+ * Get top battle winners from battleRatings + songs to send as extra context.
+ * Returns the top 3 songs by ELO rating, if available.
+ */
+function getTopBattleWinners(battleRatings, songs) {
+  if (!battleRatings || !songs?.length) return []
+  return [...songs]
+    .filter(s => battleRatings[s.id] !== undefined)
+    .sort((a, b) => (battleRatings[b.id] ?? 1000) - (battleRatings[a.id] ?? 1000))
+    .slice(0, 3)
+    .map(s => ({ title: s.title, artist: s.artist }))
+}
+
+export async function getRecommendations(songs, { tasteProfile, battleRatings, allSongs } = {}) {
+  const topBattleWinners = getTopBattleWinners(battleRatings, allSongs)
+
   const response = await fetch('/api/recommendations', {
     method:  'POST',
     headers: { 'content-type': 'application/json' },
-    body:    JSON.stringify({ songs }),
+    body:    JSON.stringify({ songs, tasteProfile: tasteProfile ?? null, topBattleWinners }),
   })
 
   if (!response.ok) {
