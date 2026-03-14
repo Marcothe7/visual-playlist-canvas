@@ -57,6 +57,7 @@ export function ImportTab({ onAdd }) {
   // Album grid (after selecting an artist)
   const [albums,       setAlbums]       = useState([])
   const [albumsLoading, setAlbumsLoading] = useState(false)
+  const [albumsError,  setAlbumsError]  = useState(null)
 
   // Import state
   const [importingId, setImportingId] = useState(null)
@@ -97,10 +98,12 @@ export function ImportTab({ onAdd }) {
     setSelectedArtist(artist)
     setView('albums')
     setAlbumsLoading(true)
+    setAlbumsError(null)
     try {
       setAlbums(await getArtistAlbums(artist.id))
-    } catch {
+    } catch (err) {
       setAlbums([])
+      setAlbumsError(err.message || 'Failed to load albums')
     } finally {
       setAlbumsLoading(false)
     }
@@ -141,7 +144,7 @@ export function ImportTab({ onAdd }) {
   if (view === 'albums' && selectedArtist) {
     return (
       <div className={styles.panel}>
-        <button className={styles.backBtn} onClick={() => setView('home')}>
+        <button className={styles.backBtn} onClick={() => { setView('home'); setAlbumsError(null) }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
             <polyline points="15 18 9 12 15 6" />
           </svg>
@@ -152,7 +155,9 @@ export function ImportTab({ onAdd }) {
           <div className={styles.center}><Spinner /></div>
         )}
 
-        {!albumsLoading && albums.length === 0 && (
+        {albumsError && <p className={styles.errorMsg}>{albumsError}</p>}
+
+        {!albumsLoading && !albumsError && albums.length === 0 && (
           <p className={styles.empty}>No albums found.</p>
         )}
 

@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       if (!id?.trim()) return res.status(400).json({ error: 'id query parameter is required' })
 
       const r = await fetch(
-        `https://api.spotify.com/v1/artists/${id}/albums?include_groups=album,single&limit=50&market=US`,
+        `https://api.spotify.com/v1/artists/${id}/albums?include_groups=album,single&limit=50`,
         { headers: authHeader }
       )
       if (!r.ok) {
