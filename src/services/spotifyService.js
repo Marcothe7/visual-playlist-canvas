@@ -179,7 +179,7 @@ export async function getPlaylistTracks(playlistId) {
 
 export async function searchArtists(query) {
   if (!query?.trim()) return []
-  const res = await fetch(`/api/spotify/search-artists?q=${encodeURIComponent(query)}`)
+  const res = await fetch(`/api/spotify/browse?action=search-artists&q=${encodeURIComponent(query)}`)
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
     throw new Error(body.error || 'Artist search failed')
@@ -189,7 +189,7 @@ export async function searchArtists(query) {
 }
 
 export async function getArtistAlbums(artistId) {
-  const res = await fetch(`/api/spotify/artist-albums?id=${encodeURIComponent(artistId)}`)
+  const res = await fetch(`/api/spotify/browse?action=artist-albums&id=${encodeURIComponent(artistId)}`)
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
     throw new Error(body.error || 'Failed to fetch artist albums')
