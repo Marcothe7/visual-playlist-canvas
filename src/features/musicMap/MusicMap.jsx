@@ -13,17 +13,20 @@ const MAP_H = 600
 const DEFAULT_VB = { x: 0, y: 0, w: MAP_W, h: MAP_H }
 
 export function MusicMap({ songNodes, recNodes }) {
-  const [vb, setVb] = useState(DEFAULT_VB)  // viewBox: { x, y, w, h }
+  const [vb, setVb]           = useState(DEFAULT_VB)  // viewBox: { x, y, w, h }
+  const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef(null)
   const svgRef  = useRef(null)
 
-  // ── Drag pan ─────────────────────────────────────────────────────────────
-  function handleMouseDown(e) {
-    if (e.button !== 0) return
+  // ── Drag pan (Pointer Events — works for mouse AND touch) ─────────────────
+  function handlePointerDown(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return  // left-click only on desktop
+    e.currentTarget.setPointerCapture(e.pointerId)           // track pointer past SVG boundary
     dragRef.current = { startX: e.clientX, startY: e.clientY, vb: { ...vb } }
+    setIsDragging(true)
   }
 
-  const handleMouseMove = useCallback((e) => {
+  const handlePointerMove = useCallback((e) => {
     if (!dragRef.current) return
     const rect = svgRef.current.getBoundingClientRect()
     const dx = -(e.clientX - dragRef.current.startX) / rect.width  * dragRef.current.vb.w
@@ -31,7 +34,7 @@ export function MusicMap({ songNodes, recNodes }) {
     setVb({ ...dragRef.current.vb, x: dragRef.current.vb.x + dx, y: dragRef.current.vb.y + dy })
   }, [])
 
-  function handleMouseUp() { dragRef.current = null }
+  function handlePointerUp() { dragRef.current = null; setIsDragging(false) }
 
   const viewBox = `${vb.x} ${vb.y} ${vb.w} ${vb.h}`
 
@@ -45,11 +48,11 @@ export function MusicMap({ songNodes, recNodes }) {
         ref={svgRef}
         viewBox={viewBox}
         className={styles.svg}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{ cursor: dragRef.current ? 'grabbing' : 'grab' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
         aria-label="Music Map"
       >
         {/* Subtle dot-grid background */}
@@ -87,6 +90,15 @@ export function MusicMap({ songNodes, recNodes }) {
         <span className={styles.legendDot} style={{ background: '#1db954' }} /> Your songs
         <span className={styles.legendDot} style={{ background: '#fb923c', marginLeft: 12 }} /> Recommendations
       </div>
+
+      {/* Reset view — handy on mobile where there's no double-click to recenter */}
+      <button
+        className={styles.resetBtn}
+        onClick={() => setVb(DEFAULT_VB)}
+        aria-label="Reset map view"
+      >
+        Reset view
+      </button>
     </div>
   )
 }

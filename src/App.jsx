@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useAppState, useAppDispatch } from '@/context/AppContext'
 import { usePlaylists } from '@/context/PlaylistContext'
 import { useAudio } from '@/context/AudioContext'
@@ -13,13 +14,15 @@ import { NowPlayingBar } from '@/components/NowPlayingBar/NowPlayingBar'
 import { UndoToast } from '@/components/UndoToast/UndoToast'
 import { AuthModal } from '@/components/AuthModal/AuthModal'
 import { BottomNav } from '@/components/BottomNav/BottomNav'
-import { handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired } from '@/services/spotifyService'
+import { handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired, clearAuthInFlight } from '@/services/spotifyService'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { fetchPreferences, upsertPreferences, fetchRecommendationHistory, fetchSongRatings, fetchTasteProfile } from '@/services/supabaseService'
 import { MusicIdentityPage } from '@/features/musicIdentity/MusicIdentityPage'
 import { MusicMapPage } from '@/features/musicMap/MusicMapPage'
 import { BattlePage } from '@/features/musicBattles/BattlePage'
+import { SearchBar } from '@/components/SearchBar/SearchBar'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import styles from './App.module.css'
 
 const VIEW_TABS = [
@@ -29,6 +32,14 @@ const VIEW_TABS = [
   { id: 'identity', label: 'Identity' },
 ]
 
+const SWIPE_ORDER = ['library', 'map', 'battle', 'identity']
+
+const slideVariants = {
+  enter:  (dir) => ({ x: dir <= 0 ? '100%' : '-100%', opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit:   (dir) => ({ x: dir <= 0 ? '-100%' : '100%', opacity: 0 }),
+}
+
 export default function App() {
   const { isPanelOpen, isModalOpen, songs, songsLoading, spotifyToken, activeView } = useAppState()
   const dispatch = useAppDispatch()
@@ -37,6 +48,36 @@ export default function App() {
   const { user } = useAuth()
 
   const prevActiveIdRef = useRef(activeId)
+  const isMobile = useIsMobile()
+
+  // Swipe navigation
+  const touchStartRef = useRef(null)
+  const [slideDir, setSlideDir] = useState(0)
+
+  function handleTouchStart(e) {
+    const t = e.touches[0]
+    touchStartRef.current = { x: t.clientX, y: t.clientY }
+  }
+
+  function handleTouchEnd(e) {
+    if (!touchStartRef.current || activeView === 'map') return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - touchStartRef.current.x
+    const dy = t.clientY - touchStartRef.current.y
+    touchStartRef.current = null
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.5) return
+    const idx = SWIPE_ORDER.indexOf(activeView)
+    if (dx < 0 && SWIPE_ORDER[idx + 1]) {
+      setSlideDir(-1)
+      dispatch({ type: 'SET_ACTIVE_VIEW', payload: SWIPE_ORDER[idx + 1] })
+    } else if (dx > 0 && SWIPE_ORDER[idx - 1]) {
+      setSlideDir(1)
+      dispatch({ type: 'SET_ACTIVE_VIEW', payload: SWIPE_ORDER[idx - 1] })
+    }
+  }
+
+  // User-visible error for failed Spotify auth (cleared on next login attempt)
+  const [spotifyAuthError, setSpotifyAuthError] = useState(null)
 
   // Grid density — persisted to localStorage, synced with Supabase when authed
   const [density, setDensity] = useState(
@@ -116,16 +157,114 @@ export default function App() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle Spotify OAuth callback (?code=...)
+  // Handle Spotify OAuth callback (?code=...) — web only
   useEffect(() => {
+    // On native Capacitor the code arrives via appUrlOpen deep link, not the URL bar
+    if (window.location.protocol === 'capacitor:') return
+
     const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (!code) return
+    const code  = params.get('code')
+    const error = params.get('error')
+    const state = params.get('state')
+    if (!code && !error) return
+
     window.history.replaceState({}, '', window.location.pathname)
     sessionStorage.removeItem('spotify-oauth-pending')
-    handleAuthCallback(code)
-      .then(tokenData => dispatch({ type: 'SPOTIFY_TOKEN_SET', payload: tokenData }))
-      .catch(err => console.error('Spotify auth failed:', err))
+
+    if (error) {
+      console.error('[Spotify] Auth denied by user or Spotify:', error)
+      clearAuthInFlight()
+      setSpotifyAuthError(error === 'access_denied' ? 'Spotify login was cancelled.' : `Spotify login failed: ${error}`)
+      return
+    }
+
+    handleAuthCallback(code, undefined, state)
+      .then(tokenData => {
+        setSpotifyAuthError(null)
+        dispatch({ type: 'SPOTIFY_TOKEN_SET', payload: tokenData })
+      })
+      .catch(err => {
+        console.error('[Spotify] Auth failed (web):', err)
+        setSpotifyAuthError('Spotify login failed. Please try again.')
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle Spotify OAuth callback on native (deep link: visualplaylist://callback?code=...)
+  useEffect(() => {
+    if (window.location.protocol !== 'capacitor:') return  // web: nothing to do
+
+    let appListener = null
+    let mounted = true
+
+    // Shared handler for the deep-link URL (works for both warm and cold starts)
+    async function processDeepLink(url, Browser) {
+      if (!url?.startsWith('visualplaylist://callback')) return
+
+      // Always close the browser overlay, regardless of outcome
+      try { await Browser.close() } catch { /* ignore if already closed */ }
+
+      if (!mounted) return
+
+      const search = url.split('?')[1] ?? ''
+      const params = new URLSearchParams(search)
+      const code   = params.get('code')
+      const error  = params.get('error')
+      const state  = params.get('state')
+
+      if (error) {
+        console.error('[Spotify] Auth denied (native):', error)
+        clearAuthInFlight()
+        setSpotifyAuthError(error === 'access_denied' ? 'Spotify login was cancelled.' : `Spotify login failed: ${error}`)
+        return
+      }
+      if (!code) {
+        console.error('[Spotify] Callback missing code')
+        clearAuthInFlight()
+        setSpotifyAuthError('Spotify login failed — no authorization code received.')
+        return
+      }
+
+      const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI_MOBILE
+      handleAuthCallback(code, redirectUri, state)
+        .then(tokenData => {
+          if (!mounted) return
+          setSpotifyAuthError(null)
+          dispatch({ type: 'SPOTIFY_TOKEN_SET', payload: tokenData })
+        })
+        .catch(err => {
+          console.error('[Spotify] Auth failed (native):', err)
+          if (mounted) setSpotifyAuthError('Spotify login failed. Please try again.')
+        })
+    }
+
+    ;(async () => {
+      const { App: CapApp } = await import('@capacitor/app')
+      const { Browser }     = await import('@capacitor/browser')
+
+      // ── Cold-start: app was killed and reopened via the deep link ───────────
+      // getLaunchUrl() returns the URL that launched the app, if any.
+      // On a warm appUrlOpen restart this will be null/empty.
+      try {
+        const launch = await CapApp.getLaunchUrl()
+        if (launch?.url) {
+          console.log('[Spotify] Processing cold-start deep link:', launch.url)
+          await processDeepLink(launch.url, Browser)
+        }
+      } catch (err) {
+        console.warn('[Spotify] getLaunchUrl failed:', err)
+      }
+
+      // ── Warm-start: app brought to foreground while already running ─────────
+      appListener = await CapApp.addListener('appUrlOpen', async (event) => {
+        console.log('[Spotify] appUrlOpen:', event.url)
+        await processDeepLink(event.url, Browser)
+      })
+    })()
+
+    return () => {
+      mounted = false
+      appListener?.remove()
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load songs when app starts or playlist switches
@@ -177,8 +316,19 @@ export default function App() {
             density={density}
             onDensityChange={handleDensityChange}
             spotifyConnected={!!spotifyToken}
-            onSpotifyConnect={initiateSpotifyAuth}
+            onSpotifyConnect={() => { setSpotifyAuthError(null); initiateSpotifyAuth() }}
           />
+        {spotifyAuthError && (
+          <div role="alert" style={{
+            padding: '8px 16px',
+            background: 'var(--color-error, #c0392b)',
+            color: '#fff',
+            fontSize: '0.85rem',
+            textAlign: 'center',
+          }}>
+            {spotifyAuthError}
+          </div>
+        )}
         <nav className={styles.viewTabs} aria-label="View navigation">
           {VIEW_TABS.map(tab => (
             <button
@@ -190,10 +340,77 @@ export default function App() {
             </button>
           ))}
         </nav>
-        {activeView === 'library'  && <SongGrid density={density} />}
-        {activeView === 'map'      && <MusicMapPage />}
-        {activeView === 'battle'   && <BattlePage />}
-        {activeView === 'identity' && <MusicIdentityPage />}
+        <div
+          className={styles.viewHost}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <AnimatePresence mode="popLayout" custom={slideDir}>
+            {activeView === 'library' && (
+              <motion.div key="library" className={styles.viewSlide}
+                custom={slideDir}
+                variants={isMobile ? slideVariants : undefined}
+                initial={isMobile ? 'enter' : false}
+                animate="center"
+                exit={isMobile ? 'exit' : undefined}
+                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              >
+                <SongGrid density={density} />
+              </motion.div>
+            )}
+            {activeView === 'search' && (
+              <motion.div key="search" className={styles.viewSlide}
+                custom={slideDir}
+                variants={isMobile ? slideVariants : undefined}
+                initial={isMobile ? 'enter' : false}
+                animate="center"
+                exit={isMobile ? 'exit' : undefined}
+                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              >
+                <div className={styles.mobileSearchView}>
+                  <SearchBar />
+                </div>
+                <SongGrid density={density} />
+              </motion.div>
+            )}
+            {activeView === 'map' && (
+              <motion.div key="map" className={styles.viewSlide}
+                custom={slideDir}
+                variants={isMobile ? slideVariants : undefined}
+                initial={isMobile ? 'enter' : false}
+                animate="center"
+                exit={isMobile ? 'exit' : undefined}
+                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              >
+                <MusicMapPage />
+              </motion.div>
+            )}
+            {activeView === 'battle' && (
+              <motion.div key="battle" className={styles.viewSlide}
+                custom={slideDir}
+                variants={isMobile ? slideVariants : undefined}
+                initial={isMobile ? 'enter' : false}
+                animate="center"
+                exit={isMobile ? 'exit' : undefined}
+                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              >
+                <BattlePage />
+              </motion.div>
+            )}
+            {activeView === 'identity' && (
+              <motion.div key="identity" className={styles.viewSlide}
+                custom={slideDir}
+                variants={isMobile ? slideVariants : undefined}
+                initial={isMobile ? 'enter' : false}
+                animate="center"
+                exit={isMobile ? 'exit' : undefined}
+                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              >
+                <MusicIdentityPage />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <RecommendationPanel />

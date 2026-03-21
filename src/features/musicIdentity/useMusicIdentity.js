@@ -1,3 +1,5 @@
+import { apiBase } from '@/lib/api'
+
 /**
  * useMusicIdentity — orchestrates the full taste-analysis flow:
  * 1. Filter songs that have a Spotify ID
@@ -74,7 +76,7 @@ export function useMusicIdentity() {
       // Song hints let Claude infer identity from artist/title even without audio features
       const songHints = songs.slice(0, 20).map(s => ({ title: s.title, artist: s.artist }))
 
-      const res = await fetch('/api/music-identity', {
+      const res = await fetch(apiBase + '/api/music-identity', {
         method:  'POST',
         headers: { 'content-type': 'application/json' },
         body:    JSON.stringify({ profile, songHints }),

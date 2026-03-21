@@ -460,7 +460,7 @@
 }
 
 /* Mobile — top-aligned so the keyboard never covers the modal */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .overlay {
     align-items: flex-start;
     padding: 0;

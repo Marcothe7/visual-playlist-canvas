@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react'
 import { generateId } from '@/utils/generateId'
+import { apiBase } from '@/lib/api'
 import {
   fetchPlaylists,
   fetchPlaylistSongs,
@@ -124,7 +125,7 @@ async function enrichMissingPreviews(playlists) {
 
   let previews = {}
   try {
-    const res = await fetch('/api/deezer-preview', {
+    const res = await fetch(apiBase + '/api/deezer-preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ songs: missing }),

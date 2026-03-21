@@ -67,7 +67,7 @@
 }
 
 /* Mobile: larger touch targets */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .menu {
     min-width: 220px;
   }

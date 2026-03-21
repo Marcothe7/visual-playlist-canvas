@@ -31,3 +31,9 @@ dist-ssr
 
 .vercel
 .env*.local
+
+# Capacitor native projects (large generated folders — rebuilt by npx cap add)
+# If you need to customize native files (e.g. AndroidManifest.xml for deep links),
+# remove these entries and commit the specific files instead.
+android/
+ios/

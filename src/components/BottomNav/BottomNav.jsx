@@ -1,4 +1,7 @@
+import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useAppState, useAppDispatch } from '@/context/AppContext'
+import { hapticLight } from '@/lib/haptics'
 import styles from './BottomNav.module.css'
 
 function LibraryIcon() {
@@ -24,9 +27,8 @@ function SearchIcon() {
 function AddIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="16" />
-      <line x1="8" y1="12" x2="16" y2="12" />
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   )
 }
@@ -69,9 +71,21 @@ function IdentityIcon() {
   )
 }
 
+function MoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
+  )
+}
+
 export function BottomNav({ onAddSong }) {
-  const { isPanelOpen, isModalOpen, activeView } = useAppState()
+  const { isPanelOpen, isModalOpen, activeView, songs } = useAppState()
+  const isEmpty = songs.length === 0
   const dispatch = useAppDispatch()
+  const [moreOpen, setMoreOpen] = useState(false)
 
   function setView(view) {
     dispatch({ type: 'SET_ACTIVE_VIEW', payload: view })
@@ -79,80 +93,108 @@ export function BottomNav({ onAddSong }) {
     if (isModalOpen) dispatch({ type: 'CLOSE_MODAL' })
   }
 
-  function handleSearch() {
-    dispatch({ type: 'OPEN_MODAL' })
-  }
-
   function handleAIPicks() {
     dispatch({ type: 'OPEN_PANEL' })
   }
 
   const isLibraryActive = activeView === 'library' && !isPanelOpen && !isModalOpen
+  const isSearchActive = activeView === 'search' && !isPanelOpen && !isModalOpen
+  const isMoreActive = moreOpen || activeView === 'map' || activeView === 'battle' || activeView === 'identity'
 
   return (
-    <nav className={styles.nav} aria-label="Main navigation">
-      <button
-        className={`${styles.navItem} ${isLibraryActive ? styles.active : ''}`}
-        onClick={() => setView('library')}
-        aria-label="Library"
-      >
-        <LibraryIcon />
-        <span>Library</span>
-      </button>
+    <div className={styles.navRoot}>
+      {/* Backdrop */}
+      {moreOpen && (
+        <div className={styles.moreOverlay} onClick={() => setMoreOpen(false)} />
+      )}
 
-      <button
-        className={`${styles.navItem} ${isModalOpen ? styles.active : ''}`}
-        onClick={handleSearch}
-        aria-label="Search"
-      >
-        <SearchIcon />
-        <span>Search</span>
-      </button>
+      {/* More drawer */}
+      <AnimatePresence>
+        {moreOpen && (
+          <motion.div
+            className={styles.moreDrawer}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          >
+            <div className={styles.moreHandle} />
+            <button
+              className={`${styles.moreItem} ${activeView === 'map' ? styles.moreItemActive : ''}`}
+              onClick={() => { setView('map'); setMoreOpen(false); hapticLight() }}
+            >
+              <MapIcon />
+              <span>Map</span>
+            </button>
+            <button
+              className={`${styles.moreItem} ${activeView === 'battle' ? styles.moreItemActive : ''}`}
+              onClick={() => { setView('battle'); setMoreOpen(false); hapticLight() }}
+            >
+              <SwordIcon />
+              <span>Battle</span>
+            </button>
+            <button
+              className={`${styles.moreItem} ${activeView === 'identity' ? styles.moreItemActive : ''}`}
+              onClick={() => { setView('identity'); setMoreOpen(false); hapticLight() }}
+            >
+              <IdentityIcon />
+              <span>Identity</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <button
-        className={`${styles.navItem} ${styles.addItem}`}
-        onClick={onAddSong}
-        aria-label="Add song"
-      >
-        <AddIcon />
-        <span>Add</span>
-      </button>
+      {/* FAB */}
+      <div className={styles.fabWrap}>
+        <button
+          className={`${styles.fab} ${isEmpty ? styles.fabDimmed : ''}`}
+          onClick={() => { hapticLight(); onAddSong() }}
+          aria-label="Add song"
+        >
+          <AddIcon />
+        </button>
+      </div>
 
-      <button
-        className={`${styles.navItem} ${isPanelOpen ? styles.active : ''}`}
-        onClick={handleAIPicks}
-        aria-label="AI Picks"
-      >
-        <SparkleIcon />
-        <span>AI Picks</span>
-      </button>
+      {/* Nav bar */}
+      <nav className={styles.nav} aria-label="Main navigation">
+        <button
+          className={`${styles.navItem} ${isLibraryActive ? styles.active : ''}`}
+          onClick={() => { hapticLight(); setView('library') }}
+          aria-label="Library"
+        >
+          <LibraryIcon />
+          <span>Library</span>
+        </button>
 
-      <button
-        className={`${styles.navItem} ${activeView === 'map' ? styles.active : ''}`}
-        onClick={() => setView('map')}
-        aria-label="Music Map"
-      >
-        <MapIcon />
-        <span>Map</span>
-      </button>
+        <button
+          className={`${styles.navItem} ${isSearchActive ? styles.active : ''}`}
+          onClick={() => { hapticLight(); setView('search') }}
+          aria-label="Search"
+        >
+          <SearchIcon />
+          <span>Search</span>
+        </button>
 
-      <button
-        className={`${styles.navItem} ${activeView === 'battle' ? styles.active : ''}`}
-        onClick={() => setView('battle')}
-        aria-label="Battle"
-      >
-        <SwordIcon />
-        <span>Battle</span>
-      </button>
+        <div className={styles.fabSpacer} />
 
-      <button
-        className={`${styles.navItem} ${activeView === 'identity' ? styles.active : ''}`}
-        onClick={() => setView('identity')}
-        aria-label="My Identity"
-      >
-        <IdentityIcon />
-        <span>Identity</span>
-      </button>
-    </nav>
+        <button
+          className={`${styles.navItem} ${isPanelOpen ? styles.active : ''}`}
+          onClick={() => { hapticLight(); handleAIPicks() }}
+          aria-label="AI Picks"
+        >
+          <SparkleIcon />
+          <span>Picks</span>
+        </button>
+
+        <button
+          className={`${styles.navItem} ${isMoreActive ? styles.active : ''}`}
+          onClick={() => { hapticLight(); setMoreOpen(true) }}
+          aria-label="More"
+        >
+          <MoreIcon />
+          <span>More</span>
+        </button>
+      </nav>
+    </div>
   )
 }

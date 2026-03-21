@@ -25,6 +25,22 @@
 .emptyTitle { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin: 0; }
 .emptyText  { font-size: 0.9375rem; color: var(--color-text-secondary); margin: 0; }
 
+.emptyAddBtn {
+  margin-top: var(--space-xs);
+  padding: 10px var(--space-xl);
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.emptyAddBtn:active {
+  background: var(--color-accent-hover);
+  transform: scale(0.97);
+}
+
 /* Stats bar */
 .statsBar {
   display: flex;

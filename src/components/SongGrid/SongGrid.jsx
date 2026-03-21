@@ -1,11 +1,31 @@
+import { motion } from 'framer-motion'
 import { useSongs } from '@/hooks/useSongs'
 import { SongCard } from '@/components/SongCard/SongCard'
 import { EmptyState } from '@/components/EmptyState/EmptyState'
 import styles from './SongGrid.module.css'
 
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.035,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16, scale: 0.96 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+}
+
 function SongCardWithTooltip({ song, onToggle, onDelete }) {
   return (
-    <div className={styles.cardWrapper}>
+    <motion.div className={styles.cardWrapper} variants={itemVariants}>
       <SongCard song={song} onToggle={onToggle} onDelete={onDelete} />
       <div className={styles.tooltip} aria-hidden="true">
         <p className={styles.tooltipTitle}>{song.title}</p>
@@ -16,7 +36,7 @@ function SongCardWithTooltip({ song, onToggle, onDelete }) {
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -50,7 +70,14 @@ export function SongGrid({ density = 'normal' }) {
         </div>
       )}
 
-      <div className={styles.grid} data-density={density}>
+      <motion.div
+        className={styles.grid}
+        data-density={density}
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        key={filteredSongs.length}
+      >
         {filteredSongs.map(song => (
           <SongCardWithTooltip
             key={song.id}
@@ -59,7 +86,7 @@ export function SongGrid({ density = 'normal' }) {
             onDelete={deleteSong}
           />
         ))}
-      </div>
+      </motion.div>
     </>
   )
 }

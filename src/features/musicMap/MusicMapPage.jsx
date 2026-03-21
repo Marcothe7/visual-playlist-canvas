@@ -2,10 +2,12 @@
 
 import { useMusicMap } from './useMusicMap'
 import { MusicMap } from './MusicMap'
+import { useAppDispatch } from '@/context/AppContext'
 import styles from './MusicMapPage.module.css'
 
 export function MusicMapPage() {
   const { songNodes, recNodes, loading, error } = useMusicMap()
+  const dispatch = useAppDispatch()
 
   const hasSongs = songNodes.length > 0
 
@@ -38,6 +40,12 @@ export function MusicMapPage() {
               Add songs to your library to see them on the map.
               <br />Songs need a Spotify ID for precise positioning.
             </p>
+            <button
+              className={styles.emptyAddBtn}
+              onClick={() => dispatch({ type: 'OPEN_MODAL' })}
+            >
+              Add Song
+            </button>
           </div>
         )}
 

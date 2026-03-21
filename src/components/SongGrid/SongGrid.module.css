@@ -20,7 +20,7 @@
 }
 
 /* Mobile (≤768px): 2 columns */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 170px;

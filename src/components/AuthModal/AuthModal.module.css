@@ -221,7 +221,7 @@
 }
 
 /* Mobile bottom sheet */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .overlay {
     align-items: flex-end;
     padding: 0;

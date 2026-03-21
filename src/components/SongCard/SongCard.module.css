@@ -28,8 +28,28 @@
 }
 
 .card.selected {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-selected);
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--color-accent),
+              0 0 30px rgba(29, 185, 84, 0.2),
+              0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.card.selected::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-md) + 2px);
+  background: linear-gradient(135deg, #1db954, #4ade80, #1db954);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Art wrapper */
@@ -93,7 +113,7 @@
 .hoverOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.04) 100%);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -306,9 +326,12 @@
 }
 
 /* Mobile: iOS HIG touch targets */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .card {
     border-radius: var(--radius-lg);
+  }
+  .card.selected::before {
+    border-radius: calc(var(--radius-lg) + 2px);
   }
   .playButton {
     width: var(--touch-target);

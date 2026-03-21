@@ -6,6 +6,7 @@ import { generateId } from '@/utils/generateId'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { searchTracks } from '@/services/spotifyService'
 import { ImportTab } from './ImportTab'
+import { hapticMedium } from '@/lib/haptics'
 import styles from './AddSongModal.module.css'
 
 // ─── Music search panel ───────────────────────────────────────────────────────
@@ -136,6 +137,7 @@ function ManualForm({ onAdd, onClose }) {
     onAdd({
       id: generateId(), title: form.title.trim(), artist: form.artist.trim(),
       album: form.album.trim(), albumArt: form.albumArt.trim() || null,
+      previewUrl: null,
       genre: [], year: form.year ? parseInt(form.year) : null,
     })
     onClose()
@@ -211,7 +213,7 @@ export function AddSongModal({ isOpen, onClose }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, onClose])
 
-  function handleAdd(song) { addSong({ ...song, isSelected: false }) }
+  function handleAdd(song) { hapticMedium(); addSong({ ...song, isSelected: false }) }
   function handleOverlayClick(e) { if (e.target === e.currentTarget) onClose() }
 
   const modalMotion = isMobile

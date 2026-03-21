@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const QUERY = '(max-width: 768px)'
+const QUERY = '(max-width: 899px)'
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() =>

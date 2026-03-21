@@ -50,3 +50,15 @@
   color: var(--color-text-faint);
   opacity: 0.6;
 }
+
+@media (max-width: 599px) {
+  /* Reduce gap between cards so VS separator stays inline */
+  .arena { gap: var(--space-md); }
+  .vs    { font-size: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  /* At 120px cards + 8px gaps: 120 + 8 + ~28 + 8 + 120 = 284px — fits 320px phones */
+  .arena { gap: var(--space-sm); }
+  .vs    { font-size: 1.25rem; }
+}

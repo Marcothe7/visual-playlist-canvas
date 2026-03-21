@@ -5,6 +5,8 @@
  * Anthropic Messages API server-side. The API key never touches the browser.
  */
 
+import { apiBase } from '@/lib/api'
+
 function parseRecommendations(items) {
   if (!Array.isArray(items)) throw new Error('Response is not an array')
   return items.map(item => ({
@@ -32,7 +34,7 @@ function getTopBattleWinners(battleRatings, songs) {
 export async function getRecommendations(songs, { tasteProfile, battleRatings, allSongs } = {}) {
   const topBattleWinners = getTopBattleWinners(battleRatings, allSongs)
 
-  const response = await fetch('/api/recommendations', {
+  const response = await fetch(apiBase + '/api/recommendations', {
     method:  'POST',
     headers: { 'content-type': 'application/json' },
     body:    JSON.stringify({ songs, tasteProfile: tasteProfile ?? null, topBattleWinners }),

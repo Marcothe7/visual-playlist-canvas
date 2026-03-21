@@ -3,10 +3,12 @@
 import { useBattles } from './useBattles'
 import { BattleScreen } from './BattleScreen'
 import { DEFAULT_RATING } from './eloRating'
+import { useAppDispatch } from '@/context/AppContext'
 import styles from './BattlePage.module.css'
 
 export function BattlePage() {
   const { pair, result, streak, rankings, battleHistory, getRating, resolveBattle, hasSongs } = useBattles()
+  const dispatch = useAppDispatch()
 
   const totalBattles = battleHistory.length
 
@@ -17,6 +19,9 @@ export function BattlePage() {
           <span className={styles.emptyIcon}>⚔️</span>
           <h2 className={styles.emptyTitle}>Music Battles</h2>
           <p className={styles.emptyText}>Add at least 2 songs to your library to start battling.</p>
+          <button className={styles.emptyAddBtn} onClick={() => dispatch({ type: 'OPEN_MODAL' })}>
+            Add Songs
+          </button>
         </div>
       </main>
     )

@@ -9,6 +9,10 @@
   transform: scale(1.15);
 }
 
+.node:active {
+  transform: scale(1.08); /* touch tap feedback — fires on both touch and desktop click */
+}
+
 .node:focus-visible {
   outline: none;
 }

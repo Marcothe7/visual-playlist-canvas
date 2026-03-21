@@ -10,24 +10,45 @@ export default async function handler(req, res) {
 
   const clientId     = process.env.SPOTIFY_CLIENT_ID
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
-  const redirectUri  = process.env.VITE_APP_URL
+
+  // Mobile sends redirect_uri=visualplaylist://callback explicitly.
+  // Web omits it and we fall back to the app's public URL.
+  // Note: VITE_ prefix on a server-side var is unusual but correct here —
+  // Vercel exposes all project env vars to serverless functions regardless of prefix.
+  // The same var is also baked into the browser bundle by Vite for building the auth URL,
+  // so a single entry in the Vercel dashboard covers both sides.
+  const ALLOWED_REDIRECT_URIS = [
+    process.env.VITE_APP_URL,
+    'visualplaylist://callback',
+  ].filter(Boolean)
+  const redirectUri = req.query.redirect_uri || process.env.VITE_APP_URL
 
   if (!clientId || !clientSecret || !redirectUri) {
     return res.status(500).json({ error: 'Spotify credentials not configured' })
   }
+  if (!ALLOWED_REDIRECT_URIS.includes(redirectUri)) {
+    return res.status(400).json({ error: 'Invalid redirect_uri' })
+  }
+
+  // PKCE: if the client sent a code_verifier, pass it to Spotify.
+  // Required when the auth request included code_challenge (PKCE flow).
+  const codeVerifier = req.query.code_verifier || null
 
   try {
+    const tokenBody = new URLSearchParams({
+      grant_type:   'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+    })
+    if (codeVerifier) tokenBody.set('code_verifier', codeVerifier)
+
     const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type':  'application/x-www-form-urlencoded',
         'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
-      body: new URLSearchParams({
-        grant_type:   'authorization_code',
-        code,
-        redirect_uri: redirectUri,
-      }).toString(),
+      body: tokenBody.toString(),
     })
 
     if (!tokenRes.ok) {

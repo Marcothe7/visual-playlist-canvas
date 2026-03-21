@@ -8,6 +8,10 @@
   --color-accent:       #1db954;
   --color-accent-hover: #1ed760;
   --color-accent-glow:  rgba(29, 185, 84, 0.35);
+  --color-accent-gradient: linear-gradient(135deg, #1db954, #1ed760, #4ade80);
+  --color-accent-soft:  rgba(29, 185, 84, 0.10);
+  --color-surface-glass: rgba(26, 26, 26, 0.65);
+  --color-surface-elevated: #1e1e1e;
   --color-text:         #ffffff;
   --color-text-muted:   #a0a0a0;
   --color-text-faint:   #606060;
@@ -37,6 +41,8 @@
   --shadow-card-hover:   0 8px 40px rgba(0, 0, 0, 0.7);
   --shadow-selected:     0 0 0 2px var(--color-accent), 0 0 24px var(--color-accent-glow);
   --shadow-panel:        -4px 0 32px rgba(0, 0, 0, 0.6);
+  --shadow-card-elevated: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-glow-accent:   0 0 20px rgba(29, 185, 84, 0.3);
 
   /* Typography */
   --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
@@ -68,6 +74,12 @@
   --touch-target:       44px;
 }
 
+@media (max-width: 899px) {
+  :root {
+    --header-height: 52px;
+  }
+}
+
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -90,7 +102,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 a {
@@ -137,7 +153,7 @@ img {
 }
 
 /* ─── Mobile: prevent iOS auto-zoom on input focus ──────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   input, textarea, select {
     font-size: 16px !important;
   }

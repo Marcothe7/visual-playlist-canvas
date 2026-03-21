@@ -5,6 +5,7 @@ import { useAudio } from '@/context/AudioContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { SongContextMenu } from '@/components/SongContextMenu/SongContextMenu'
+import { hapticLight } from '@/lib/haptics'
 import styles from './SongCard.module.css'
 
 const cardVariants = {
@@ -46,6 +47,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
 
   // Single tap always selects (on both mobile and desktop)
   function handleCardClick(e) {
+    hapticLight()
     onToggle(song.id)
   }
 
@@ -78,7 +80,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
           variants={cardVariants}
           initial="initial"
           animate="animate"
-          whileHover={!isMobile ? { scale: 1.02 } : undefined}
+          whileHover={!isMobile ? { scale: 1.035 } : undefined}
           whileTap={{ scale: 0.97 }}
           onClick={(e) => {
             // Long-press hook calls e.preventDefault() after a long-press fires,

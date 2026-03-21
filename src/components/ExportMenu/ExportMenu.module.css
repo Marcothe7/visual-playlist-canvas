@@ -68,7 +68,7 @@
   color: var(--color-text);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .container {
     display: none;
   }
