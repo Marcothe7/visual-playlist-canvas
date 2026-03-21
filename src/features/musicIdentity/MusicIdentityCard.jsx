@@ -21,7 +21,7 @@ function shareIdentityCard(identity, profile) {
   ctx.fillRect(0, 0, 800, 520)
 
   // Accent border top
-  ctx.fillStyle = '#1db954'
+  ctx.fillStyle = '#8B5CF6'
   ctx.fillRect(0, 0, 800, 4)
 
   // Title
@@ -30,7 +30,7 @@ function shareIdentityCard(identity, profile) {
   ctx.fillText('YOUR MUSIC IDENTITY', 48, 50)
 
   // Identity name
-  ctx.fillStyle = '#1db954'
+  ctx.fillStyle = '#8B5CF6'
   ctx.font      = '700 42px system-ui, sans-serif'
   ctx.fillText(identity.name, 48, 110)
 
@@ -56,7 +56,7 @@ function shareIdentityCard(identity, profile) {
     const w = ctx.measureText(mood).width + 24
     ctx.fillStyle = 'rgba(29,185,84,0.15)'
     roundRect(ctx, mx, tagY - 14, w, 24, 12)
-    ctx.fillStyle = '#1db954'
+    ctx.fillStyle = '#8B5CF6'
     ctx.fillText(mood, mx + 12, tagY)
     mx += w + 8
   })
@@ -81,7 +81,7 @@ function shareIdentityCard(identity, profile) {
       ctx.fillStyle = '#1f2937'
       roundRect(ctx, bx, by + 20, 180, 8, 4)
       // bar fill
-      ctx.fillStyle = '#1db954'
+      ctx.fillStyle = '#8B5CF6'
       roundRect(ctx, bx, by + 20, Math.max(4, 180 * (value ?? 0)), 8, 4)
       by += 42
     })
@@ -93,7 +93,7 @@ function shareIdentityCard(identity, profile) {
     ctx.fillStyle = '#6b7280'
     ctx.font      = '500 12px system-ui, sans-serif'
     ctx.fillText('GENRES', 48, 290)
-    const segColors = ['#1db954', '#a78bfa', '#60a5fa', '#fb923c', '#f472b6']
+    const segColors = ['#8B5CF6', '#a78bfa', '#60a5fa', '#fb923c', '#f472b6']
     const total = genres.reduce((s, g) => s + g.pct, 0)
     let gx = 48
     genres.slice(0, 5).forEach((g, i) => {

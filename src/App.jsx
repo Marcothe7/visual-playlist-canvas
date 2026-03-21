@@ -32,12 +32,12 @@ const VIEW_TABS = [
   { id: 'identity', label: 'Identity' },
 ]
 
-const SWIPE_ORDER = ['library', 'map', 'battle', 'identity']
+const SWIPE_ORDER = ['library', 'search', 'map', 'battle', 'identity']
 
 const slideVariants = {
-  enter:  (dir) => ({ x: dir <= 0 ? '100%' : '-100%', opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit:   (dir) => ({ x: dir <= 0 ? '-100%' : '100%', opacity: 0 }),
+  enter:  (dir) => ({ x: dir <= 0 ? '80%' : '-80%', opacity: 0, scale: 0.96 }),
+  center: { x: 0, opacity: 1, scale: 1 },
+  exit:   (dir) => ({ x: dir <= 0 ? '-80%' : '80%', opacity: 0, scale: 0.96 }),
 }
 
 export default function App() {
@@ -353,7 +353,7 @@ export default function App() {
                 initial={isMobile ? 'enter' : false}
                 animate="center"
                 exit={isMobile ? 'exit' : undefined}
-                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 240, mass: 0.8 }}
               >
                 <SongGrid density={density} />
               </motion.div>
@@ -365,7 +365,7 @@ export default function App() {
                 initial={isMobile ? 'enter' : false}
                 animate="center"
                 exit={isMobile ? 'exit' : undefined}
-                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 240, mass: 0.8 }}
               >
                 <div className={styles.mobileSearchView}>
                   <SearchBar />
@@ -380,7 +380,7 @@ export default function App() {
                 initial={isMobile ? 'enter' : false}
                 animate="center"
                 exit={isMobile ? 'exit' : undefined}
-                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 240, mass: 0.8 }}
               >
                 <MusicMapPage />
               </motion.div>
@@ -392,7 +392,7 @@ export default function App() {
                 initial={isMobile ? 'enter' : false}
                 animate="center"
                 exit={isMobile ? 'exit' : undefined}
-                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 240, mass: 0.8 }}
               >
                 <BattlePage />
               </motion.div>
@@ -404,7 +404,7 @@ export default function App() {
                 initial={isMobile ? 'enter' : false}
                 animate="center"
                 exit={isMobile ? 'exit' : undefined}
-                transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 240, mass: 0.8 }}
               >
                 <MusicIdentityPage />
               </motion.div>

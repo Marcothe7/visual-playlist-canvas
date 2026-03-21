@@ -5,11 +5,11 @@
   --color-surface:      #1a1a1a;
   --color-surface-2:    #242424;
   --color-surface-3:    #2e2e2e;
-  --color-accent:       #1db954;
-  --color-accent-hover: #1ed760;
-  --color-accent-glow:  rgba(29, 185, 84, 0.35);
-  --color-accent-gradient: linear-gradient(135deg, #1db954, #1ed760, #4ade80);
-  --color-accent-soft:  rgba(29, 185, 84, 0.10);
+  --color-accent:       #8B5CF6;
+  --color-accent-hover: #A78BFA;
+  --color-accent-glow:  rgba(139, 92, 246, 0.35);
+  --color-accent-gradient: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  --color-accent-soft:  rgba(139, 92, 246, 0.10);
   --color-surface-glass: rgba(26, 26, 26, 0.65);
   --color-surface-elevated: #1e1e1e;
   --color-text:         #ffffff;
@@ -42,7 +42,7 @@
   --shadow-selected:     0 0 0 2px var(--color-accent), 0 0 24px var(--color-accent-glow);
   --shadow-panel:        -4px 0 32px rgba(0, 0, 0, 0.6);
   --shadow-card-elevated: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-glow-accent:   0 0 20px rgba(29, 185, 84, 0.3);
+  --shadow-glow-accent:   0 0 20px rgba(139, 92, 246, 0.3);
 
   /* Typography */
   --font-sans:  'Inter', system-ui, -apple-system, sans-serif;

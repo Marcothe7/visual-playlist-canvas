@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getGradientFromString } from '@/utils/colorFromString'
 import { useAudio } from '@/context/AudioContext'
+import { useAppDispatch } from '@/context/AppContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { SongContextMenu } from '@/components/SongContextMenu/SongContextMenu'
-import { hapticLight } from '@/lib/haptics'
+import { hapticLight, hapticMedium } from '@/lib/haptics'
+import { apiBase } from '@/lib/api'
 import styles from './SongCard.module.css'
 
 const cardVariants = {
@@ -16,10 +18,37 @@ const cardVariants = {
 export function SongCard({ song, onToggle, onDelete, featured = false }) {
   const { from, to } = getGradientFromString(song.artist + (song.album || ''))
   const { playingId, play } = useAudio()
+  const dispatch = useAppDispatch()
   const isPlaying = playingId === song.id
   const isMobile  = useIsMobile()
 
-  const [contextMenu, setContextMenu] = useState(null) // { x, y } | null
+  const [contextMenu, setContextMenu] = useState(null)
+  const [fetchingPreview, setFetchingPreview] = useState(false)
+
+  // ── Fetch preview on demand when missing ──
+  const fetchPreviewAndPlay = useCallback(async (e) => {
+    e.stopPropagation()
+    if (fetchingPreview) return
+    setFetchingPreview(true)
+    try {
+      const res = await fetch(apiBase + '/api/deezer-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songs: [{ id: song.id, title: song.title, artist: song.artist }] }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const url = data.previews?.[song.id]
+        if (url) {
+          dispatch({ type: 'UPDATE_SONG', payload: { id: song.id, previewUrl: url } })
+          hapticMedium()
+          play(song.id, url)
+          return
+        }
+      }
+    } catch {}
+    setFetchingPreview(false)
+  }, [song.id, song.title, song.artist, fetchingPreview, dispatch, play])
 
   // ── Long-press → context menu (mobile only)
   const longPressHandlers = useLongPress((e) => {
@@ -37,6 +66,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
 
   function handlePlay(e) {
     e.stopPropagation()
+    hapticLight()
     play(song.id, song.previewUrl)
   }
 
@@ -45,8 +75,7 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
     onDelete(song.id)
   }
 
-  // Single tap always selects (on both mobile and desktop)
-  function handleCardClick(e) {
+  function handleCardClick() {
     hapticLight()
     onToggle(song.id)
   }
@@ -83,10 +112,8 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
           whileHover={!isMobile ? { scale: 1.035 } : undefined}
           whileTap={{ scale: 0.97 }}
           onClick={(e) => {
-            // Long-press hook calls e.preventDefault() after a long-press fires,
-            // so we skip selection in that case (context menu opened instead).
             if (isMobile) longPressHandlers.onClick(e)
-            if (!e.defaultPrevented) handleCardClick(e)
+            if (!e.defaultPrevented) handleCardClick()
           }}
           onKeyDown={handleKeyDown}
           tabIndex={0}
@@ -100,7 +127,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
             onPointerCancel: longPressHandlers.onPointerCancel,
           } : {})}
         >
-          {/* Art — full-bleed for all cards; info overlaid on featured */}
           <div className={styles.artWrapper}>
             {song.albumArt ? (
               <img
@@ -125,7 +151,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
 
             <div className={styles.hoverOverlay} aria-hidden="true" />
 
-            {/* Featured: title/artist overlaid at bottom with gradient scrim */}
             {featured && (
               <div className={styles.featuredScrim}>
                 <p className={styles.featuredTitle}>{song.title}</p>
@@ -133,7 +158,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
               </div>
             )}
 
-            {/* Delete button (desktop only — mobile uses swipe/long-press) */}
             {onDelete && !isMobile && (
               <button
                 className={styles.deleteButton}
@@ -148,27 +172,27 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
               </button>
             )}
 
-            {/* Play button — always shown; disabled when no preview */}
+            {/* Play button — tapping when no preview triggers a fetch attempt */}
             <button
-                className={`${styles.playButton} ${isPlaying ? styles.playButtonActive : ''} ${!song.previewUrl ? styles.playButtonDisabled : ''}`}
-                onClick={song.previewUrl ? handlePlay : undefined}
-                aria-label={isPlaying ? `Pause ${song.title}` : song.previewUrl ? `Play preview of ${song.title}` : 'No preview available'}
-                title={isPlaying ? 'Pause' : song.previewUrl ? 'Play 30s preview' : 'No preview available'}
-                disabled={!song.previewUrl}
-              >
-                {isPlaying ? (
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="6" y="4" width="4" height="16" rx="1" />
-                    <rect x="14" y="4" width="4" height="16" rx="1" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="5,3 19,12 5,21" />
-                  </svg>
-                )}
-              </button>
+              className={`${styles.playButton} ${isPlaying ? styles.playButtonActive : ''} ${fetchingPreview ? styles.playButtonLoading : ''}`}
+              onClick={song.previewUrl ? handlePlay : fetchPreviewAndPlay}
+              aria-label={isPlaying ? `Pause ${song.title}` : fetchingPreview ? 'Loading preview…' : song.previewUrl ? `Play preview of ${song.title}` : `Fetch & play ${song.title}`}
+              title={isPlaying ? 'Pause' : fetchingPreview ? 'Loading…' : song.previewUrl ? 'Play 30s preview' : 'Tap to load preview'}
+            >
+              {fetchingPreview ? (
+                <span className={styles.playSpinner} />
+              ) : isPlaying ? (
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="4" width="4" height="16" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5,3 19,12 5,21" />
+                </svg>
+              )}
+            </button>
 
-            {/* Now Playing equalizer bars */}
             {isPlaying && (
               <div className={styles.eqBars} aria-hidden="true">
                 <span className={styles.eqBar} />
@@ -193,7 +217,6 @@ export function SongCard({ song, onToggle, onDelete, featured = false }) {
             )}
           </div>
 
-          {/* Normal cards: info below art */}
           {!featured && (
             <div className={styles.info}>
               <p className={styles.songTitle}>{song.title}</p>

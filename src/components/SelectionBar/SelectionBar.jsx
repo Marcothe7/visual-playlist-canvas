@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSongs } from '@/hooks/useSongs'
 import { useRecommendations } from '@/hooks/useRecommendations'
+import { hapticLight, hapticMedium } from '@/lib/haptics'
 import styles from './SelectionBar.module.css'
 
 export function SelectionBar() {
@@ -8,6 +9,7 @@ export function SelectionBar() {
   const { fetchRecommendations, recommendationsLoading } = useRecommendations()
 
   function handleGetRecs() {
+    hapticMedium()
     fetchRecommendations(selectedSongs)
   }
 
@@ -30,14 +32,14 @@ export function SelectionBar() {
             </div>
             <button
               className={styles.clearBtn}
-              onClick={clearSelection}
+              onClick={() => { hapticLight(); clearSelection() }}
               aria-label="Clear selection"
             >
               Clear
             </button>
             <button
               className={styles.deleteBtn}
-              onClick={deleteSelected}
+              onClick={() => { hapticMedium(); deleteSelected() }}
               disabled={recommendationsLoading}
               aria-label={`Delete ${selectedCount} selected song${selectedCount !== 1 ? 's' : ''}`}
             >

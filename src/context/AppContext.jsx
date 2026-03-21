@@ -190,6 +190,14 @@ function appReducer(state, action) {
     case 'SONGS_LOADING':
       return { ...state, songsLoading: true }
 
+    case 'UPDATE_SONG':
+      return {
+        ...state,
+        songs: state.songs.map(s =>
+          s.id === action.payload.id ? { ...s, ...action.payload } : s
+        ),
+      }
+
     case 'SET_SONGS':
       return { ...state, songs: action.payload, songsLoading: false }
 

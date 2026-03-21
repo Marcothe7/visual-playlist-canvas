@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useAudio } from '@/context/AudioContext'
 import { useSongs } from '@/hooks/useSongs'
 import { getGradientFromString } from '@/utils/colorFromString'
+import { hapticLight } from '@/lib/haptics'
 import styles from './NowPlayingBar.module.css'
 
 export function NowPlayingBar() {
@@ -12,6 +13,7 @@ export function NowPlayingBar() {
   const progress = duration > 0 ? currentTime / duration : 0
 
   function handleProgressClick(e) {
+    hapticLight()
     const rect = e.currentTarget.getBoundingClientRect()
     const ratio = (e.clientX - rect.left) / rect.width
     seek(Math.max(0, Math.min(1, ratio)))
@@ -77,7 +79,7 @@ export function NowPlayingBar() {
             </div>
 
             {/* Stop button */}
-            <button className={styles.stopBtn} onClick={stop} aria-label="Stop playback" title="Stop">
+            <button className={styles.stopBtn} onClick={() => { hapticLight(); stop() }} aria-label="Stop playback" title="Stop">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <rect x="4" y="4" width="16" height="16" rx="2" />
               </svg>

@@ -22,7 +22,7 @@
   color: var(--color-accent);
   opacity: 0.65;
   margin-bottom: var(--space-xs);
-  filter: drop-shadow(0 0 20px rgba(29, 185, 84, 0.25));
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.25));
   animation: floatIcon 4s ease-in-out infinite;
 }
 
@@ -51,12 +51,12 @@
   gap: 8px;
   margin-top: var(--space-sm);
   padding: 13px 24px;
-  background: linear-gradient(135deg, #1db954, #1ed760);
-  color: #000;
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  color: #fff;
   font-size: 0.9rem;
   font-weight: 600;
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 20px rgba(29, 185, 84, 0.3);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
   transition: background var(--transition-fast), transform 0.1s, box-shadow var(--transition-fast);
 }
 

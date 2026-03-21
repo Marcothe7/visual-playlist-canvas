@@ -130,20 +130,20 @@
 .addAllBtn:hover:not(:disabled) {
   background: var(--color-accent);
   border-color: transparent;
-  color: #000;
+  color: #fff;
 }
 
 .addAllDone {
   color: var(--color-accent) !important;
-  border-color: rgba(29, 185, 84, 0.3) !important;
-  background: rgba(29, 185, 84, 0.08) !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  background: rgba(139, 92, 246, 0.08) !important;
   cursor: default;
 }
 
 /* Added state for rec card button */
 .addBtnDone {
-  background: rgba(29, 185, 84, 0.15) !important;
-  border-color: rgba(29, 185, 84, 0.3) !important;
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
   color: var(--color-accent) !important;
   cursor: default;
 }
@@ -285,9 +285,9 @@
 
 /* Drag handle pill */
 .dragHandle {
-  width: 36px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-full);
   margin: var(--space-sm) auto 0;
   flex-shrink: 0;

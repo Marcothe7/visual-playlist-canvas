@@ -87,7 +87,7 @@ export function MusicMap({ songNodes, recNodes }) {
 
       {/* Legend */}
       <div className={styles.legend}>
-        <span className={styles.legendDot} style={{ background: '#1db954' }} /> Your songs
+        <span className={styles.legendDot} style={{ background: '#8B5CF6' }} /> Your songs
         <span className={styles.legendDot} style={{ background: '#fb923c', marginLeft: 12 }} /> Recommendations
       </div>
 

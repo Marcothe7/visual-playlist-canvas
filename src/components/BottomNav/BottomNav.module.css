@@ -17,11 +17,11 @@
 .nav {
   display: flex;
   height: var(--mobile-nav-height);
-  background: rgba(10, 10, 10, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(10, 10, 10, 0.78);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
   align-items: center;
   padding: 0 2px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -34,10 +34,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   padding: var(--space-xs) 4px;
   color: var(--color-text-faint);
-  font-size: 0.575rem;
+  font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -46,23 +46,24 @@
   min-height: var(--touch-target);
   border-radius: var(--radius-md);
   position: relative;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition: color var(--transition-fast), background var(--transition-fast), transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 
 .navItem svg {
-  width: 22px;
-  height: 22px;
+  width: 23px;
+  height: 23px;
   flex-shrink: 0;
 }
 
 .navItem:active {
+  transform: scale(0.92);
   background: var(--color-surface-2);
 }
 
 .navItem.active {
   color: var(--color-accent);
-  background: rgba(29, 185, 84, 0.08);
+  background: rgba(139, 92, 246, 0.1);
   border-radius: var(--radius-md);
 }
 
@@ -76,10 +77,10 @@
   width: 20px;
   height: 3px;
   border-radius: var(--radius-full);
-  background: var(--color-accent);
+  background: linear-gradient(90deg, #8B5CF6, #06B6D4);
 }
 
-/* ─── FAB spacer (center slot placeholder) ─────────── */
+/* ─── FAB spacer ─────────────────────────────────────── */
 .fabSpacer {
   flex: 1;
   pointer-events: none;
@@ -105,18 +106,18 @@
   width: 60px;
   height: 60px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #1db954, #1ed760);
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(29, 185, 84, 0.45), 0 0 40px rgba(29, 185, 84, 0.15);
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.45), 0 0 48px rgba(139, 92, 246, 0.15);
   display: grid;
   place-items: center;
-  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: background var(--transition-fast), transform 0.15s ease, box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 
 .fab:active {
-  transform: scale(0.92);
-  background: var(--color-accent-hover);
+  transform: scale(0.9);
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.3);
 }
 
 .fabDimmed {
@@ -144,9 +145,9 @@
   bottom: var(--mobile-nav-height);
   left: 0;
   right: 0;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(20, 20, 20, 0.88);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   z-index: calc(var(--z-bar) + 7);
@@ -158,9 +159,9 @@
 
 .moreHandle {
   width: 36px;
-  height: 4px;
+  height: 5px;
   border-radius: var(--radius-full);
-  background: var(--color-border-hover);
+  background: rgba(255, 255, 255, 0.2);
   margin: 0 auto var(--space-md);
 }
 
@@ -174,7 +175,7 @@
   font-size: 1rem;
   font-weight: 500;
   min-height: 56px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background var(--transition-fast), color var(--transition-fast), transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -186,6 +187,7 @@
 .moreItem:active {
   background: var(--color-surface-2);
   color: var(--color-text);
+  transform: scale(0.97);
 }
 
 .moreItemActive {

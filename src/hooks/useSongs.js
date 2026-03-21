@@ -38,6 +38,10 @@ export function useSongs() {
     dispatch({ type: 'REORDER_SONGS', payload: songs })
   }
 
+  function updateSong(partial) {
+    dispatch({ type: 'UPDATE_SONG', payload: partial })
+  }
+
   function setSearchQuery(query) {
     dispatch({ type: 'SET_SEARCH_QUERY', payload: query })
   }
@@ -53,6 +57,7 @@ export function useSongs() {
     clearSelection,
     deleteSong,
     deleteSelected,
+    updateSong,
     reorderSongs,
     setSearchQuery,
   }

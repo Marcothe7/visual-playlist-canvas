@@ -20,11 +20,11 @@
 .connectIcon {
   width: 52px;
   height: 52px;
-  background: #1db954;
+  background: #8B5CF6;
   border-radius: var(--radius-full);
   display: grid;
   place-items: center;
-  color: #000;
+  color: #fff;
 }
 
 .connectIcon svg {
@@ -48,8 +48,8 @@
 .connectBtn {
   margin-top: var(--space-sm);
   padding: 11px var(--space-xl);
-  background: #1db954;
-  color: #000;
+  background: #8B5CF6;
+  color: #fff;
   font-size: var(--text-sm);
   font-weight: 700;
   border-radius: var(--radius-full);
@@ -58,7 +58,7 @@
 }
 
 .connectBtn:hover {
-  background: #1ed760;
+  background: #A78BFA;
   transform: scale(1.02);
 }
 
@@ -160,7 +160,7 @@
 .importBtn:not(:disabled):hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
-  background: rgba(29, 185, 84, 0.1);
+  background: rgba(139, 92, 246, 0.1);
 }
 
 .importBtn:disabled:not(.importBtnDone) {
@@ -171,14 +171,14 @@
 .importBtnDone {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #000;
+  color: #fff;
   cursor: default;
 }
 
 .importBtnDone:hover {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #000;
+  color: #fff;
 }
 
 /* ── Artist search ───────────────────────────────────────────────────────────── */
@@ -363,7 +363,7 @@
 .albumImportBtn:not(:disabled):hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
-  background: rgba(29, 185, 84, 0.1);
+  background: rgba(139, 92, 246, 0.1);
 }
 
 .albumImportBtn:disabled:not(.albumImportBtnDone) {
@@ -374,7 +374,7 @@
 .albumImportBtnDone {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #000;
+  color: #fff;
   cursor: default;
 }
 

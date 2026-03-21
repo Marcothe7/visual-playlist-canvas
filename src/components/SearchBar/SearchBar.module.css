@@ -24,9 +24,9 @@
   border-radius: var(--radius-full);
   color: var(--color-text);
   font-size: var(--text-sm);
-  padding: 8px 36px 8px 36px;
+  padding: 10px 36px 10px 36px;
   outline: none;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .input::placeholder {
@@ -36,13 +36,14 @@
 .input:focus {
   border-color: var(--color-accent);
   background: var(--color-surface-2);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
 .clearBtn {
   position: absolute;
   right: 8px;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-full);

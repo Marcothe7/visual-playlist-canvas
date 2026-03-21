@@ -18,7 +18,7 @@ export function SongNode({ node, mapWidth, mapHeight }) {
   const cy = mapHeight / 2 + node.y
 
   const isRec    = node.type === 'recommendation'
-  const accent   = isRec ? '#fb923c' : '#1db954'
+  const accent   = isRec ? '#fb923c' : '#8B5CF6'
   const initials = node.title.slice(0, 1).toUpperCase()
 
   function handleClick() {

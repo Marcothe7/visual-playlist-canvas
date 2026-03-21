@@ -5,7 +5,7 @@
   right: 0;
   z-index: var(--z-bar);
   background: rgba(20, 20, 20, 0.75);
-  border-top: 1px solid rgba(29, 185, 84, 0.15);
+  border-top: 1px solid rgba(139, 92, 246, 0.15);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
@@ -33,7 +33,7 @@
 
 .count {
   background: var(--color-accent);
-  color: #000;
+  color: #fff;
   font-weight: 700;
   font-size: var(--text-xs);
   padding: 2px 8px;
@@ -80,12 +80,12 @@
   align-items: center;
   gap: var(--space-sm);
   padding: 10px var(--space-lg);
-  background: linear-gradient(135deg, #1db954, #1ed760);
-  color: #000;
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  color: #fff;
   font-size: var(--text-sm);
   font-weight: 600;
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 16px rgba(29, 185, 84, 0.35);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
   transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -109,8 +109,8 @@
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(0, 0, 0, 0.3);
-  border-top-color: #000;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

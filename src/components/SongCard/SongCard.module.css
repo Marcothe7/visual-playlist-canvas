@@ -3,7 +3,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-md);
-  height: 100%; /* fill grid cell so card can use height: 100% */
+  height: 100%;
 }
 
 .card {
@@ -14,9 +14,8 @@
   position: relative;
   border: 1.5px solid transparent;
   box-shadow: var(--shadow-card);
-  transition: box-shadow var(--transition-base);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
   user-select: none;
-  /* fits into grid-auto-rows — must be 100% so flex: 1 on artWrapper works */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -30,8 +29,9 @@
 .card.selected {
   border-color: transparent;
   box-shadow: 0 0 0 2px var(--color-accent),
-              0 0 30px rgba(29, 185, 84, 0.2),
+              0 0 30px rgba(139, 92, 246, 0.25),
               0 8px 32px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .card.selected::before {
@@ -39,7 +39,7 @@
   position: absolute;
   inset: -2px;
   border-radius: calc(var(--radius-md) + 2px);
-  background: linear-gradient(135deg, #1db954, #4ade80, #1db954);
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4, #8B5CF6);
   background-size: 200% 200%;
   animation: gradientShift 3s ease infinite;
   z-index: -1;
@@ -61,7 +61,6 @@
   background: var(--color-surface-3);
 }
 
-/* Featured: art fills the entire card (no text section below) */
 .featured .artWrapper {
   aspect-ratio: unset;
   flex: 1;
@@ -94,26 +93,26 @@
   position: absolute;
   top: var(--space-sm);
   right: var(--space-sm);
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   background: var(--color-accent);
   border-radius: var(--radius-full);
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.5);
 }
 
 .checkmark svg {
   width: 14px;
   height: 14px;
-  color: #000;
+  color: #fff;
 }
 
 /* Hover overlay */
 .hoverOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.04) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(255, 255, 255, 0.03) 100%);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -125,7 +124,7 @@
 /* Info section */
 .info {
   padding: 10px var(--space-sm) var(--space-sm);
-  flex-shrink: 0; /* prevent artWrapper from squeezing this out */
+  flex-shrink: 0;
 }
 
 .songTitle {
@@ -212,16 +211,16 @@
   position: absolute;
   bottom: 8px;
   left: 8px;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.7);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
   display: grid;
   place-items: center;
   opacity: 0;
-  transition: opacity var(--transition-fast), background var(--transition-fast), transform 0.1s;
+  transition: opacity var(--transition-fast), background var(--transition-fast), transform 0.1s, box-shadow var(--transition-fast);
   z-index: 3;
   backdrop-filter: blur(6px);
 }
@@ -241,22 +240,32 @@
   background: var(--color-accent);
   border-color: transparent;
   transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
 }
 
 .playButtonActive {
   background: var(--color-accent);
   border-color: transparent;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
 }
 
-.playButtonDisabled {
-  opacity: 0.3;
-  cursor: default;
+/* Loading spinner inside play button */
+.playButtonLoading {
+  opacity: 1;
+  cursor: wait;
 }
 
-.playButtonDisabled:hover {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: none;
+.playSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: playSpin 0.7s linear infinite;
+}
+
+@keyframes playSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* Equalizer bars — Now Playing indicator */
@@ -329,6 +338,13 @@
 @media (max-width: 899px) {
   .card {
     border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+  .card.selected {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 2px var(--color-accent),
+                0 0 24px rgba(139, 92, 246, 0.3),
+                0 12px 36px rgba(0, 0, 0, 0.5);
   }
   .card.selected::before {
     border-radius: calc(var(--radius-lg) + 2px);
@@ -345,12 +361,10 @@
   .yearBadge {
     font-size: 0.75rem;
   }
-  /* Ensure swipe wrapper and card fill the grid cell so all cards are the same size */
   .swipeWrapper {
     height: 100%;
   }
   .card {
     height: 100%;
   }
-  /* Art fills remaining space (aspect-ratio already unset globally) */
 }

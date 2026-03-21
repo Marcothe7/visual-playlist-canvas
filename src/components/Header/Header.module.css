@@ -118,8 +118,8 @@
 
 .spotifyBtn:hover:not(:disabled) {
   background: var(--color-surface-3);
-  border-color: #1db954;
-  color: #1db954;
+  border-color: #8B5CF6;
+  color: #8B5CF6;
 }
 
 .spotifyBtn:disabled {
@@ -127,9 +127,9 @@
 }
 
 .spotifyConnected {
-  border-color: #1db95440;
-  color: #1db954;
-  background: #1db95412;
+  border-color: #8B5CF640;
+  color: #8B5CF6;
+  background: #8B5CF612;
 }
 
 .spotifyIcon {
@@ -215,7 +215,9 @@
 @media (max-width: 899px) {
   .header {
     padding: 0 var(--space-md);
+    padding-top: env(safe-area-inset-top, 0px);
     gap: var(--space-sm);
+    height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
   }
   .subtitle {
     display: none;
