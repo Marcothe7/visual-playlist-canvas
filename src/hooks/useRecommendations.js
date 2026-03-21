@@ -1,13 +1,21 @@
 import { useAppState, useAppDispatch } from '@/context/AppContext'
-import { getRecommendations } from '@/services/claudeService'
+import { useCredits } from '@/context/CreditContext'
+import { getRecommendations, NoCreditError } from '@/services/claudeService'
 import { searchTracks } from '@/services/spotifyService'
 import { generateId } from '@/utils/generateId'
 
 export function useRecommendations() {
   const state    = useAppState()
   const dispatch = useAppDispatch()
+  const { hasCredits, refreshCredits, openPaywall } = useCredits()
 
   async function fetchRecommendations(selectedSongs) {
+    // Pre-check credits (UX optimization — server enforces too)
+    if (!hasCredits) {
+      openPaywall()
+      return
+    }
+
     dispatch({ type: 'FETCH_RECOMMENDATIONS_START' })
     try {
       // Pass taste profile and battle data for improved context-aware recommendations
@@ -35,7 +43,15 @@ export function useRecommendations() {
       )
       const recsWithIds = enriched.map(r => ({ ...r, id: generateId() }))
       dispatch({ type: 'FETCH_RECOMMENDATIONS_SUCCESS', payload: recsWithIds })
+
+      // Refresh credits to sync with server-side deduction
+      refreshCredits()
     } catch (err) {
+      if (err instanceof NoCreditError) {
+        dispatch({ type: 'FETCH_RECOMMENDATIONS_ERROR', payload: 'No AI recommendation credits remaining' })
+        openPaywall()
+        return
+      }
       dispatch({
         type: 'FETCH_RECOMMENDATIONS_ERROR',
         payload: err.message || 'Failed to get recommendations',

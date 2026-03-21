@@ -1,0 +1,293 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: var(--z-overlay);
+  padding: var(--space-md);
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  width: min(400px, 100%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.subtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+
+.closeBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Credit display ───────────────────────────────────────────────────────── */
+.creditDisplay {
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.creditCount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.creditLabel {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── Watch Ad section ─────────────────────────────────────────────────────── */
+.adSection {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.adBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 12px var(--space-md);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.adBtn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.adBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adBtn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-accent);
+}
+
+.adHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-align: center;
+  margin-top: var(--space-xs);
+}
+
+/* ── Pack cards ───────────────────────────────────────────────────────────── */
+.packs {
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.packsTitle {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-xs);
+}
+
+.packCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.packCard:hover:not(:disabled) {
+  background: var(--color-surface-3);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.packCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.packIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--color-accent);
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.packInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.packName {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.packDesc {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  margin-top: 2px;
+}
+
+.packPrice {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-accent);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Best value card (unlimited) ──────────────────────────────────────────── */
+.packCardPro {
+  composes: packCard;
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.06);
+  position: relative;
+}
+
+.packCardPro:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: var(--color-accent);
+}
+
+.bestBadge {
+  position: absolute;
+  top: -8px;
+  right: var(--space-md);
+  padding: 2px 10px;
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.proPerks {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: 4px;
+}
+
+.perk {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* ── Restore link ─────────────────────────────────────────────────────────── */
+.footer {
+  padding: var(--space-sm) var(--space-lg) var(--space-lg);
+  text-align: center;
+}
+
+.restoreBtn {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.restoreBtn:hover {
+  color: var(--color-text-muted);
+}
+
+/* ── Mobile bottom sheet ──────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    width: 100%;
+    max-height: 85dvh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-bottom: none;
+  }
+  .packCard, .adBtn {
+    min-height: var(--touch-target);
+  }
+}

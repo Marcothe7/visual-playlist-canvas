@@ -4,6 +4,7 @@ import { SearchBar } from '@/components/SearchBar/SearchBar'
 import { ExportMenu } from '@/components/ExportMenu/ExportMenu'
 import { ShortcutsModal } from '@/components/ShortcutsModal/ShortcutsModal'
 import { UserMenu } from '@/components/Header/UserMenu'
+import { CreditBadge } from '@/components/CreditBadge/CreditBadge'
 import { useAuth } from '@/context/AuthContext'
 import styles from './Header.module.css'
 
@@ -102,6 +103,8 @@ export function Header({ onAddSong, density, onDensityChange, spotifyConnected, 
         </button>
 
         <ExportMenu />
+
+        <CreditBadge />
 
         {user ? (
           <UserMenu />

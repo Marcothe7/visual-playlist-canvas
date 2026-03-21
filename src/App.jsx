@@ -13,6 +13,7 @@ import { RecommendationReveal } from '@/components/RecommendationReveal/Recommen
 import { NowPlayingBar } from '@/components/NowPlayingBar/NowPlayingBar'
 import { UndoToast } from '@/components/UndoToast/UndoToast'
 import { AuthModal } from '@/components/AuthModal/AuthModal'
+import { PaywallModal } from '@/components/PaywallModal/PaywallModal'
 import { BottomNav } from '@/components/BottomNav/BottomNav'
 import { handleAuthCallback, initiateSpotifyAuth, loadToken, isTokenExpired, clearAuthInFlight } from '@/services/spotifyService'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
@@ -23,6 +24,8 @@ import { MusicMapPage } from '@/features/musicMap/MusicMapPage'
 import { BattlePage } from '@/features/musicBattles/BattlePage'
 import { SearchBar } from '@/components/SearchBar/SearchBar'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { useBilling } from '@/hooks/useBilling'
+import { useAds } from '@/hooks/useAds'
 import styles from './App.module.css'
 
 const VIEW_TABS = [
@@ -49,6 +52,8 @@ export default function App() {
 
   const prevActiveIdRef = useRef(activeId)
   const isMobile = useIsMobile()
+  const { purchase, restorePurchases, purchasing } = useBilling()
+  const { showRewardedAd, rewardedReady, showInterstitial } = useAds()
 
   // Swipe navigation
   const touchStartRef = useRef(null)
@@ -420,6 +425,13 @@ export default function App() {
       <AddSongModal isOpen={isModalOpen} onClose={closeModal} />
       <RecommendationReveal />
       <AuthModal />
+      <PaywallModal
+        onWatchAd={showRewardedAd}
+        onPurchase={purchase}
+        onRestore={restorePurchases}
+        adReady={rewardedReady}
+        purchasing={purchasing}
+      />
       <BottomNav onAddSong={openModal} />
     </div>
   )

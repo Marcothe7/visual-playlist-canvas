@@ -13,6 +13,15 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    rollupOptions: {
+      // Native-only Capacitor plugins — dynamically imported, may not be installed
+      external: [
+        '@capawesome-team/capacitor-android-billing',
+        '@capacitor-community/admob',
+      ],
+    },
+  },
   server: {
     allowedHosts: 'all', // lets vercel dev's internal proxy reach the Vite dev server
   },

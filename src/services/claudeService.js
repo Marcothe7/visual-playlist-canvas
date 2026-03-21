@@ -6,6 +6,15 @@
  */
 
 import { apiBase } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
+
+export class NoCreditError extends Error {
+  constructor(creditsRemaining = 0) {
+    super('NO_CREDITS')
+    this.name = 'NoCreditError'
+    this.creditsRemaining = creditsRemaining
+  }
+}
 
 function parseRecommendations(items) {
   if (!Array.isArray(items)) throw new Error('Response is not an array')
@@ -34,11 +43,25 @@ function getTopBattleWinners(battleRatings, songs) {
 export async function getRecommendations(songs, { tasteProfile, battleRatings, allSongs } = {}) {
   const topBattleWinners = getTopBattleWinners(battleRatings, allSongs)
 
+  // Build headers — include auth token if available
+  const headers = { 'content-type': 'application/json' }
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      headers['authorization'] = `Bearer ${session.access_token}`
+    }
+  } catch { /* proceed without auth */ }
+
   const response = await fetch(apiBase + '/api/recommendations', {
     method:  'POST',
-    headers: { 'content-type': 'application/json' },
+    headers,
     body:    JSON.stringify({ songs, tasteProfile: tasteProfile ?? null, topBattleWinners }),
   })
+
+  if (response.status === 402) {
+    const err = await response.json().catch(() => ({}))
+    throw new NoCreditError(err.creditsRemaining ?? 0)
+  }
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}))

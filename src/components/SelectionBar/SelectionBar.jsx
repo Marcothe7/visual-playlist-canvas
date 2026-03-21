@@ -1,14 +1,22 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSongs } from '@/hooks/useSongs'
 import { useRecommendations } from '@/hooks/useRecommendations'
+import { useCredits } from '@/context/CreditContext'
+import { CreditBadge } from '@/components/CreditBadge/CreditBadge'
 import { hapticLight, hapticMedium } from '@/lib/haptics'
 import styles from './SelectionBar.module.css'
 
 export function SelectionBar() {
   const { selectedSongs, selectedCount, clearSelection, deleteSelected } = useSongs()
   const { fetchRecommendations, recommendationsLoading } = useRecommendations()
+  const { hasCredits, openPaywall } = useCredits()
 
   function handleGetRecs() {
+    if (!hasCredits) {
+      hapticLight()
+      openPaywall()
+      return
+    }
     hapticMedium()
     fetchRecommendations(selectedSongs)
   }

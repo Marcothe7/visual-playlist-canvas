@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRecommendations } from '@/hooks/useRecommendations'
 import { useSongs } from '@/hooks/useSongs'
+import { useCredits } from '@/context/CreditContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { RecommendationCard } from '@/components/RecommendationCard/RecommendationCard'
 import { generateId } from '@/utils/generateId'
+import { hapticLight } from '@/lib/haptics'
 import styles from './RecommendationPanel.module.css'
 
 const SKELETON_COUNT = 5
@@ -43,6 +45,7 @@ export function RecommendationPanel() {
   } = useRecommendations()
 
   const { selectedSongs, addSong } = useSongs()
+  const { isPro, totalCredits, openPaywall } = useCredits()
   const isMobile = useIsMobile()
 
   // Track which recs have been added this session
@@ -218,6 +221,15 @@ export function RecommendationPanel() {
                   <p className={styles.hint}>
                     {recommendations.length} songs · powered by Claude AI
                   </p>
+                  {!isPro && (
+                    <button
+                      className={styles.upsellBanner}
+                      onClick={() => { hapticLight(); openPaywall() }}
+                    >
+                      <span>{totalCredits} AI Pick{totalCredits !== 1 ? 's' : ''} left</span>
+                      <span className={styles.upsellCta}>Go Pro →</span>
+                    </button>
+                  )}
                 </div>
               </>
             )}
